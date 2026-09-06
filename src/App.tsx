@@ -1,12 +1,21 @@
+import { useState } from 'react'
+import { WelcomePage } from './components/WelcomePage'
+import { Workspace } from './components/Workspace'
+import { readSessionUsername, writeSessionUsername } from './lib/username'
+
 function App() {
-  return (
-    <main className="flex min-h-svh items-center justify-center bg-terminal-bg px-6 text-terminal-fg">
-      <p className="font-mono text-sm sm:text-base">
-        <span className="text-terminal-accent">guest@purrtfolio</span>
-        <span className="text-terminal-muted">:~$</span> waiting for commands
-      </p>
-    </main>
-  )
+  const [username, setUsername] = useState<string | null>(readSessionUsername)
+
+  function handleWelcome(name: string) {
+    writeSessionUsername(name)
+    setUsername(name)
+  }
+
+  if (!username) {
+    return <WelcomePage onSubmit={handleWelcome} />
+  }
+
+  return <Workspace username={username} />
 }
 
 export default App

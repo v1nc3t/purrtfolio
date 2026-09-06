@@ -5,8 +5,22 @@
   --color-terminal-fg: #c5c8c6;
   --color-terminal-muted: #6b7280;
   --color-terminal-accent: #7fdb6a;
+  --color-workspace: #8a8a8a;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas,
     monospace;
+  --animate-cursor-blink: cursor-blink 1s step-end infinite;
+}
+
+@keyframes cursor-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  50.01%,
+  100% {
+    opacity: 0;
+  }
 }
 
 @layer base {
