@@ -9,9 +9,11 @@ import {
   type SyntheticEvent,
 } from 'react'
 import { BlockCursor } from './BlockCursor'
+import { runCommand } from '../lib/commands'
 
 type TerminalProps = {
   username: string
+  onOpenWindow?: (name: string) => void
 }
 
 type LogLine =
@@ -29,27 +31,7 @@ function promptText(username: string) {
   return `${username}@purrtfolio:~$ `
 }
 
-function runCommand(raw: string, username: string): { clear?: boolean; output: string[] } {
-  const trimmed = raw.trim()
-  if (!trimmed) return { output: [] }
-
-  const [cmd] = trimmed.split(/\s+/)
-
-  switch (cmd) {
-    case 'clear':
-      return { clear: true, output: [] }
-    case 'help':
-      return {
-        output: ['clear   clear the screen', 'help    list commands', 'whoami  print username'],
-      }
-    case 'whoami':
-      return { output: [username] }
-    default:
-      return { output: [`${cmd}: command not found`] }
-  }
-}
-
-export function Terminal({ username }: TerminalProps) {
+export function Terminal({ username, onOpenWindow }: TerminalProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const logRef = useRef<HTMLDivElement>(null)
   const prompt = promptText(username)
@@ -98,6 +80,8 @@ export function Terminal({ username }: TerminalProps) {
     setInput('')
     setDraft('')
     setHistoryIndex(null)
+
+    if (result.open) onOpenWindow?.(result.open)
 
     if (result.clear) {
       setLines([])
