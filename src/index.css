@@ -5,7 +5,7 @@
   --color-terminal-fg: #c5c8c6;
   --color-terminal-muted: #6b7280;
   --color-terminal-accent: #7fdb6a;
-  --color-workspace: #8a8a8a;
+  --color-workspace: #000000;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas,
     monospace;
   --animate-cursor-blink: cursor-blink 1s step-end infinite;
@@ -20,6 +20,32 @@
   50.01%,
   100% {
     opacity: 0;
+  }
+}
+
+@utility scrollbar-line {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-terminal-muted) transparent;
+
+  &::-webkit-scrollbar {
+    width: 1px;
+    height: 1px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--color-terminal-muted);
+  }
+
+  &::-webkit-scrollbar-button {
+    display: none;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: transparent;
   }
 }
 

@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
   type SyntheticEvent,
 } from 'react'
+import { BlockCursor } from './BlockCursor'
 import { normalizeUsername, sanitizeUsernameInput } from '../lib/username'
 
 type WelcomePageProps = {
@@ -21,6 +22,7 @@ export function WelcomePage({ onSubmit }: WelcomePageProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const [name, setName] = useState('')
   const [caret, setCaret] = useState(0)
+  const [focused, setFocused] = useState(true)
   const username = normalizeUsername(name)
 
   useLayoutEffect(() => {
@@ -97,18 +99,21 @@ export function WelcomePage({ onSubmit }: WelcomePageProps) {
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             onSelect={handleSelect}
+            onFocus={() => setFocused(true)}
+            onBlur={() => setFocused(false)}
             className="absolute inset-0 z-10 cursor-text bg-transparent text-transparent caret-transparent outline-none"
           />
           <div
-            className="pointer-events-none relative min-h-[1.2em] min-w-[8ch]"
+            className="pointer-events-none relative min-h-[1em] min-w-[8ch] leading-none"
             aria-hidden
           >
             <span className={name ? 'text-terminal-fg' : 'text-terminal-muted'}>
               {name || 'username'}
             </span>
-            <span
-              className="absolute top-0 inline-block h-[1.2em] w-[1ch] bg-terminal-fg animate-cursor-blink"
-              style={{ left: `${caret}ch` }}
+            <BlockCursor
+              caret={caret}
+              focused={focused}
+              boxClass="top-1/2 h-[1.2em] -translate-y-1/2"
             />
           </div>
         </div>
