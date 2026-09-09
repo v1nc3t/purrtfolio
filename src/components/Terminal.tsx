@@ -11,7 +11,7 @@ import {
 } from 'react'
 import { BlockCursor } from './BlockCursor'
 import { runCommand } from '../lib/commands'
-import { useWindowsStore } from '../store/windows'
+import { useCanvasStore } from '../store/useCanvasStore'
 
 type TerminalProps = {
   username: string
@@ -45,7 +45,9 @@ export const Terminal = memo(function Terminal({ username }: TerminalProps) {
   const [draft, setDraft] = useState('')
   const [focused, setFocused] = useState(true)
 
-  const windowFocused = useWindowsStore((state) => state.focusedId === 'terminal')
+  const windowFocused = useCanvasStore(
+    (state) => state.focusedId === 'terminal' && !state.isOverviewMode,
+  )
 
   useEffect(() => {
     const input = inputRef.current
@@ -87,7 +89,7 @@ export const Terminal = memo(function Terminal({ username }: TerminalProps) {
     setDraft('')
     setHistoryIndex(null)
 
-    if (result.open) useWindowsStore.getState().open(result.open)
+    if (result.open) useCanvasStore.getState().open(result.open)
 
     if (result.clear) {
       setLines([])

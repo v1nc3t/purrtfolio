@@ -1,91 +1,138 @@
-import { type PointerEvent, type ReactNode } from 'react'
-import { useWindowsStore, type WindowId } from '../store/windows'
+import { useState, type PointerEvent, type ReactNode } from 'react'
+import { pointerToWorld } from '../lib/camera'
+import { panGesture } from '../lib/panGesture'
+import { getWindowPhysics } from '../lib/windowPhysics'
+import { useCanvasStore, type WindowId } from '../store/useCanvasStore'
 
 type WindowProps = {
   id: WindowId
   children: ReactNode
 }
 
+const FLOAT_DELAY: Record<WindowId, string> = {
+  terminal: '0s',
+  about: '-1.2s',
+  projects: '-2.4s',
+  photos: '-3.6s',
+}
+
+const DRAG_THRESHOLD = 5
+
 function isCloseControl(target: EventTarget | null) {
   return target instanceof HTMLElement && Boolean(target.closest('button'))
 }
 
+function workspaceOf(target: EventTarget | null) {
+  if (!(target instanceof HTMLElement)) return null
+  const main = target.closest('main')
+  return main instanceof HTMLElement ? main : null
+}
+
 export function Window({ id, children }: WindowProps) {
-  const frame = useWindowsStore((state) => state.windows[id])
-  const focused = useWindowsStore((state) => state.focusedId === id)
+  const frame = useCanvasStore((state) => state.windows[id])
+  const focused = useCanvasStore((state) => state.focusedId === id)
+  const overview = useCanvasStore((state) => state.isOverviewMode)
+  const [dragging, setDragging] = useState(false)
 
   if (!frame) return null
 
-  function handleFocus() {
-    useWindowsStore.getState().focus(id)
+  function startMove(
+    event: PointerEvent<HTMLElement>,
+    options: { focusOnClick: boolean },
+  ) {
+    const store = useCanvasStore.getState()
+    const current = store.windows[id]
+    const workspace = workspaceOf(event.currentTarget)
+    if (!current || !workspace) return
+    const canvas: HTMLElement = workspace
+
+    event.preventDefault()
+    event.stopPropagation()
+
+    store.focus(id)
+    if (!store.isOverviewMode) store.unlockCamera()
+
+    const startX = event.clientX
+    const startY = event.clientY
+    const origin = pointerToWorld(
+      store.camera,
+      canvas,
+      event.clientX,
+      event.clientY,
+    )
+    const offsetX = origin.x - current.x
+    const offsetY = origin.y - current.y
+    const physics = getWindowPhysics()
+    physics.pin(
+      id,
+      current.x + current.width / 2,
+      current.y + current.height / 2,
+    )
+    setDragging(true)
+
+    let moved = false
+
+    function onMove(ev: globalThis.PointerEvent) {
+      if (!moved) {
+        if (Math.hypot(ev.clientX - startX, ev.clientY - startY) < DRAG_THRESHOLD) {
+          return
+        }
+        moved = true
+      }
+
+      const nextStore = useCanvasStore.getState()
+      const live = nextStore.windows[id]
+      if (!live) return
+      const world = pointerToWorld(
+        nextStore.camera,
+        canvas,
+        ev.clientX,
+        ev.clientY,
+      )
+      const x = world.x - offsetX
+      const y = world.y - offsetY
+      nextStore.setWindowPosition(id, x, y)
+      physics.pin(id, x + live.width / 2, y + live.height / 2)
+    }
+
+    function onUp() {
+      physics.unpin(id)
+      setDragging(false)
+      window.removeEventListener('pointermove', onMove)
+      window.removeEventListener('pointerup', onUp)
+
+      const nextStore = useCanvasStore.getState()
+      if (!moved && options.focusOnClick && nextStore.isOverviewMode) {
+        nextStore.exitOverview(id)
+        return
+      }
+      if (moved && nextStore.isOverviewMode) nextStore.fitOverview()
+    }
+
+    window.addEventListener('pointermove', onMove)
+    window.addEventListener('pointerup', onUp)
+  }
+
+  function handlePointerDown(event: PointerEvent<HTMLElement>) {
+    if (event.button !== 0) return
+    if (isCloseControl(event.target)) return
+    if (panGesture.spaceDown || event.altKey) return
+
+    const store = useCanvasStore.getState()
+    if (store.isOverviewMode) {
+      startMove(event, { focusOnClick: true })
+      return
+    }
+    store.focusOnWindow(id)
   }
 
   function handleHeaderDown(event: PointerEvent<HTMLElement>) {
     if (event.button !== 0) return
     if (isCloseControl(event.target)) return
+    if (panGesture.spaceDown || event.altKey) return
 
-    const current = useWindowsStore.getState().windows[id]
-    if (!current) return
-
-    event.preventDefault()
-    const dx = event.clientX - current.x
-    const dy = event.clientY - current.y
-    useWindowsStore.getState().focus(id)
-
-    function onMove(ev: PointerEvent | MouseEvent) {
-      useWindowsStore.getState().move(id, ev.clientX - dx, ev.clientY - dy)
-    }
-
-    function onUp() {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('mouseup', onUp)
-    }
-
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('pointerup', onUp)
-    window.addEventListener('mouseup', onUp)
-  }
-
-  function handleResizeDown(event: PointerEvent<HTMLElement>) {
-    if (event.button !== 0) return
-
-    const current = useWindowsStore.getState().windows[id]
-    if (!current) return
-
-    event.preventDefault()
-    event.stopPropagation()
-    const origin = {
-      x: event.clientX,
-      y: event.clientY,
-      w: current.width,
-      h: current.height,
-    }
-    useWindowsStore.getState().focus(id)
-
-    function onMove(ev: PointerEvent | MouseEvent) {
-      useWindowsStore
-        .getState()
-        .resize(
-          id,
-          origin.w + (ev.clientX - origin.x),
-          origin.h + (ev.clientY - origin.y),
-        )
-    }
-
-    function onUp() {
-      window.removeEventListener('pointermove', onMove)
-      window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('pointerup', onUp)
-      window.removeEventListener('mouseup', onUp)
-    }
-
-    window.addEventListener('pointermove', onMove)
-    window.addEventListener('mousemove', onMove)
-    window.addEventListener('pointerup', onUp)
-    window.addEventListener('mouseup', onUp)
+    const store = useCanvasStore.getState()
+    startMove(event, { focusOnClick: store.isOverviewMode })
   }
 
   const closable = id !== 'terminal'
@@ -93,49 +140,57 @@ export function Window({ id, children }: WindowProps) {
   return (
     <section
       aria-label={frame.title}
+      aria-selected={focused}
       data-focused={focused ? 'true' : 'false'}
-      onPointerDown={handleFocus}
+      data-overview={overview ? 'true' : 'false'}
+      data-dragging={dragging ? 'true' : 'false'}
+      onPointerDown={handlePointerDown}
       style={{
-        left: frame.x,
-        top: frame.y,
         width: frame.width,
         height: frame.height,
         zIndex: frame.zIndex,
+        transform: `translate3d(${frame.x}px, ${frame.y}px, 0)`,
       }}
-      className={`absolute flex flex-col bg-terminal-bg ${
-        focused ? 'border-terminal-fg' : 'border-terminal-muted'
-      } border`}
+      className={`window-frame absolute top-0 left-0 ${
+        overview ? 'cursor-grab' : ''
+      } ${dragging ? 'cursor-grabbing' : ''}`}
     >
-      <header
-        className="flex shrink-0 cursor-grab touch-none select-none items-center border-b border-inherit text-sm active:cursor-grabbing"
-        onPointerDown={handleHeaderDown}
+      <div
+        className="window-shell animate-window-float flex h-full flex-col bg-terminal-bg motion-reduce:animate-none"
+        style={{
+          animationDelay: FLOAT_DELAY[id],
+          animationPlayState: dragging ? 'paused' : 'running',
+        }}
       >
-        <span
-          className={`min-w-0 flex-1 truncate px-3 py-1 ${
-            focused ? 'text-terminal-fg' : 'text-terminal-muted'
+        <header
+          className={`window-header flex shrink-0 cursor-grab touch-none select-none items-center text-sm active:cursor-grabbing ${
+            focused
+              ? 'bg-terminal-accent/10 text-terminal-accent'
+              : 'text-terminal-muted opacity-75'
+          }`}
+          onPointerDown={handleHeaderDown}
+        >
+          <span className="min-w-0 flex-1 truncate px-3 py-1">{frame.title}</span>
+          {closable ? (
+            <button
+              type="button"
+              aria-label={`Close ${frame.title}`}
+              className="cursor-pointer px-2 py-0.5 text-lg leading-none text-terminal-muted [&:hover]:text-red-500"
+              onPointerDown={(event) => event.stopPropagation()}
+              onClick={() => useCanvasStore.getState().close(id)}
+            >
+              ×
+            </button>
+          ) : null}
+        </header>
+        <div
+          className={`min-h-0 flex-1 ${focused ? '' : 'opacity-75'} ${
+            overview ? 'pointer-events-none' : ''
           }`}
         >
-          {frame.title}
-        </span>
-        {closable ? (
-          <button
-            type="button"
-            aria-label={`Close ${frame.title}`}
-            className="cursor-pointer px-2 py-0.5 text-lg leading-none text-terminal-muted [&:hover]:text-red-500"
-            onPointerDown={(event) => event.stopPropagation()}
-            onClick={() => useWindowsStore.getState().close(id)}
-          >
-            ×
-          </button>
-        ) : null}
-      </header>
-      <div className="min-h-0 flex-1">{children}</div>
-      <button
-        type="button"
-        aria-label={`Resize ${frame.title}`}
-        className="absolute right-0 bottom-0 h-3 w-3 cursor-se-resize touch-none"
-        onPointerDown={handleResizeDown}
-      />
+          {children}
+        </div>
+      </div>
     </section>
   )
 }
