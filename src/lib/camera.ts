@@ -20,7 +20,7 @@ export type Camera = {
 
 export const MIN_SCALE = 0.15
 export const MAX_SCALE = 2
-export const FOCUS_MAX_SCALE = 1.5
+export const FOCUS_MAX_SCALE = 1.6
 export const FOCUS_PADDING = 64
 export const OVERVIEW_PADDING = 120
 export const DEFAULT_CAMERA: Camera = { x: 0, y: 0, scale: 1 }
