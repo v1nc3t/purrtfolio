@@ -1,4 +1,5 @@
 import {
+  memo,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -10,10 +11,10 @@ import {
 } from 'react'
 import { BlockCursor } from './BlockCursor'
 import { runCommand } from '../lib/commands'
+import { useWindowsStore } from '../store/windows'
 
 type TerminalProps = {
   username: string
-  onOpenWindow?: (name: string) => void
 }
 
 type LogLine =
@@ -31,7 +32,7 @@ function promptText(username: string) {
   return `${username}@purrtfolio:~$ `
 }
 
-export function Terminal({ username, onOpenWindow }: TerminalProps) {
+export const Terminal = memo(function Terminal({ username }: TerminalProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const logRef = useRef<HTMLDivElement>(null)
   const prompt = promptText(username)
@@ -44,9 +45,14 @@ export function Terminal({ username, onOpenWindow }: TerminalProps) {
   const [draft, setDraft] = useState('')
   const [focused, setFocused] = useState(true)
 
+  const windowFocused = useWindowsStore((state) => state.focusedId === 'terminal')
+
   useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
+    const input = inputRef.current
+    if (!input) return
+    if (windowFocused) input.focus()
+    else input.blur()
+  }, [windowFocused])
 
   useLayoutEffect(() => {
     const input = inputRef.current
@@ -81,7 +87,7 @@ export function Terminal({ username, onOpenWindow }: TerminalProps) {
     setDraft('')
     setHistoryIndex(null)
 
-    if (result.open) onOpenWindow?.(result.open)
+    if (result.open) useWindowsStore.getState().open(result.open)
 
     if (result.clear) {
       setLines([])
@@ -198,4 +204,4 @@ export function Terminal({ username, onOpenWindow }: TerminalProps) {
       </div>
     </form>
   )
-}
+})
