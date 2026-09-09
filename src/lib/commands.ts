@@ -1,4 +1,5 @@
-import type { WindowId } from '../store/windows'
+import type { WindowId } from '../store/useCanvasStore'
+import { SHORTCUT_HELP } from './hotkeys'
 
 export type CommandContext = {
   username: string
@@ -22,7 +23,15 @@ const windowHandlers: Record<string, CommandHandler> = {
 const builtinHandlers: Record<string, CommandHandler> = {
   clear: () => ({ clear: true, output: [] }),
   whoami: (ctx) => ({ output: [ctx.username] }),
-  help: () => ({ output: Object.keys(windowHandlers) }),
+  shortcuts: () => ({ output: [...SHORTCUT_HELP] }),
+  help: () => ({
+    output: [
+      ...Object.keys(windowHandlers),
+      ...Object.keys(builtinHandlers).filter(
+        (name) => name !== 'help' && name !== 'whoami',
+      ),
+    ],
+  }),
 }
 
 const handlers: Record<string, CommandHandler> = {
