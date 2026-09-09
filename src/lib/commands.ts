@@ -1,3 +1,5 @@
+import type { WindowId } from '../store/windows'
+
 export type CommandContext = {
   username: string
   args: string[]
@@ -6,7 +8,7 @@ export type CommandContext = {
 export type CommandResult = {
   clear?: boolean
   output: string[]
-  open?: string
+  open?: Exclude<WindowId, 'terminal'>
 }
 
 export type CommandHandler = (ctx: CommandContext) => CommandResult
