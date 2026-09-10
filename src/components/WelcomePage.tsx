@@ -85,7 +85,7 @@ export function WelcomePage({ onSubmit }: WelcomePageProps) {
   return (
     <main className="flex min-h-svh items-center justify-center bg-terminal-bg">
       <form onSubmit={handleSubmit}>
-        <div className="relative font-mono text-lg">
+        <div className="relative font-mono text-4xl">
           <input
             ref={inputRef}
             id="username"
@@ -104,7 +104,7 @@ export function WelcomePage({ onSubmit }: WelcomePageProps) {
             className="absolute inset-0 z-10 cursor-text bg-transparent text-transparent caret-transparent outline-none"
           />
           <div
-            className="pointer-events-none relative min-h-[1em] min-w-[8ch] leading-none"
+            className="pointer-events-none relative min-h-[1em] min-w-[16ch] leading-none"
             aria-hidden
           >
             <span className={name ? 'text-terminal-fg' : 'text-terminal-muted'}>

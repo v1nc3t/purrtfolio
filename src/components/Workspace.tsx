@@ -1,3 +1,9 @@
+import { memo, useEffect, useRef, type ReactNode } from 'react'
+import { useShallow } from 'zustand/react/shallow'
+import { useCanvasCamera } from '../hooks/useCanvasCamera'
+import { useWindowPhysics } from '../hooks/useWindowPhysics'
+import { useWindowShortcuts } from '../hooks/useWindowShortcuts'
+import { useCanvasStore, type WindowId } from '../store/useCanvasStore'
 import { Terminal } from './Terminal'
 import { Window } from './Window'
 
@@ -5,17 +11,77 @@ type WorkspaceProps = {
   username: string
 }
 
+const WindowBody = memo(function WindowBody({
+  id,
+  username,
+}: {
+  id: WindowId
+  username: string
+}) {
+  switch (id) {
+    case 'terminal':
+      return <Terminal username={username} />
+    default:
+      return <div className="h-full" />
+  }
+})
+
+function CanvasWorld({ children }: { children: ReactNode }) {
+  const camera = useCanvasStore((state) => state.camera)
+  const animating = useCanvasStore((state) => state.cameraAnimating)
+
+  return (
+    <div
+      className={`absolute top-0 left-0 origin-top-left ${
+        animating ? 'canvas-world-animate' : ''
+      }`}
+      style={{
+        transform: `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`,
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
 export function Workspace({ username }: WorkspaceProps) {
+  const containerRef = useRef<HTMLElement>(null)
+  useWindowShortcuts()
+  useCanvasCamera(containerRef)
+  useWindowPhysics()
+
+  const openIds = useCanvasStore(useShallow((state) => state.order))
+  const overview = useCanvasStore((state) => state.isOverviewMode)
+
+  useEffect(() => {
+    function syncViewport() {
+      useCanvasStore.getState().setViewport({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      })
+    }
+
+    syncViewport()
+    window.addEventListener('resize', syncViewport)
+    return () => window.removeEventListener('resize', syncViewport)
+  }, [])
+
   return (
     <main
+      ref={containerRef}
       data-username={username}
-      className="relative min-h-svh overflow-hidden bg-workspace"
-      aria-label="Workspace"
+      data-overview={overview ? 'true' : 'false'}
+      className="relative min-h-svh cursor-default overflow-hidden bg-workspace data-[panning=true]:cursor-grabbing data-[space=true]:cursor-grab"
+      aria-label={overview ? 'Window overview' : 'Workspace'}
     >
       <span className="sr-only">Signed in as {username}</span>
-      <Window title="terminal">
-        <Terminal username={username} />
-      </Window>
+      <CanvasWorld>
+        {openIds.map((id) => (
+          <Window key={id} id={id}>
+            <WindowBody id={id} username={username} />
+          </Window>
+        ))}
+      </CanvasWorld>
     </main>
   )
 }
