@@ -80,19 +80,26 @@ function framesOf(
   )
 }
 
+function windowSize(id: WindowId) {
+  return id === 'projects'
+    ? { width: 720, height: 560 }
+    : DEFAULT_WINDOW_SIZE
+}
+
 function placeWindow(
   id: WindowId,
   windows: Partial<Record<WindowId, WindowFrame>>,
   zIndex: number,
 ): WindowFrame {
+  const size = windowSize(id)
   const existing = framesOf(windows)
   const hub = windows.terminal
   const satellites = existing.filter((frame) => frame.id !== 'terminal')
   const origin = hub
-    ? placeAroundHub(hub, satellites)
+    ? placeAroundHub(hub, satellites, size)
     : {
-        x: -DEFAULT_WINDOW_SIZE.width / 2,
-        y: -DEFAULT_WINDOW_SIZE.height / 2,
+        x: -size.width / 2,
+        y: -size.height / 2,
       }
 
   return clampFrame({
@@ -100,8 +107,8 @@ function placeWindow(
     title: TITLES[id],
     x: origin.x,
     y: origin.y,
-    width: DEFAULT_WINDOW_SIZE.width,
-    height: DEFAULT_WINDOW_SIZE.height,
+    width: size.width,
+    height: size.height,
     zIndex,
   })
 }

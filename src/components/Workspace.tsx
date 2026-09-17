@@ -4,6 +4,7 @@ import { useCanvasCamera } from '../hooks/useCanvasCamera'
 import { useWindowPhysics } from '../hooks/useWindowPhysics'
 import { useWindowShortcuts } from '../hooks/useWindowShortcuts'
 import { useCanvasStore, type WindowId } from '../store/useCanvasStore'
+import { ProjectsPage } from './ProjectsPage'
 import { Terminal } from './Terminal'
 import { Window } from './Window'
 
@@ -21,6 +22,8 @@ const WindowBody = memo(function WindowBody({
   switch (id) {
     case 'terminal':
       return <Terminal username={username} />
+    case 'projects':
+      return <ProjectsPage />
     default:
       return <div className="h-full" />
   }
