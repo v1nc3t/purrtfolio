@@ -1,5 +1,5 @@
-import type { WindowId } from '../store/useCanvasStore'
-import { SHORTCUT_HELP } from './hotkeys'
+import { SHORTCUT_HELP } from '../shared/hotkeys'
+import type { WindowId } from '../workspace/useCanvasStore'
 
 export type CommandContext = {
   username: string

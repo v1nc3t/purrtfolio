@@ -7,8 +7,8 @@ import {
   type KeyboardEvent,
   type SyntheticEvent,
 } from 'react'
-import { BlockCursor } from './BlockCursor'
-import { normalizeUsername, sanitizeUsernameInput } from '../lib/username'
+import { BlockCursor } from '../shared/BlockCursor'
+import { normalizeUsername, sanitizeUsernameInput } from './username'
 
 type WelcomePageProps = {
   onSubmit: (username: string) => void

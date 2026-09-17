@@ -1,8 +1,8 @@
 import { useState, type PointerEvent, type ReactNode } from 'react'
-import { pointerToWorld } from '../lib/camera'
-import { panGesture } from '../lib/panGesture'
-import { getWindowPhysics } from '../lib/windowPhysics'
-import { useCanvasStore, type WindowId } from '../store/useCanvasStore'
+import { pointerToWorld } from './camera'
+import { panGesture } from './panGesture'
+import { useCanvasStore, type WindowId } from './useCanvasStore'
+import { getWindowPhysics } from './windowPhysics'
 
 type WindowProps = {
   id: WindowId

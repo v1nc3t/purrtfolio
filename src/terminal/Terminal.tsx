@@ -9,9 +9,9 @@ import {
   type KeyboardEvent,
   type SyntheticEvent,
 } from 'react'
-import { BlockCursor } from './BlockCursor'
-import { runCommand } from '../lib/commands'
-import { useCanvasStore } from '../store/useCanvasStore'
+import { BlockCursor } from '../shared/BlockCursor'
+import { useCanvasStore } from '../workspace/useCanvasStore'
+import { runCommand } from './commands'
 
 type TerminalProps = {
   username: string

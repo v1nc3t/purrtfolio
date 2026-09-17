@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { getWindowPhysics, stopWindowPhysics } from '../lib/windowPhysics'
-import { useCanvasStore } from '../store/useCanvasStore'
+import { useCanvasStore } from './useCanvasStore'
+import { getWindowPhysics, stopWindowPhysics } from './windowPhysics'
 
 export function useWindowPhysics() {
   const order = useCanvasStore(useShallow((state) => state.order))

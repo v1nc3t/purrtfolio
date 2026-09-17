@@ -8,14 +8,14 @@ import {
   zoomCamera as scaleCamera,
   type Camera,
   type Viewport,
-} from '../lib/camera'
-import { clampFrame } from '../lib/world'
+} from './camera'
 import {
   DEFAULT_WINDOW_SIZE,
   pickWindowInDirection,
   placeAroundHub,
   type Direction,
-} from '../lib/layout'
+} from './layout'
+import { clampFrame } from './world'
 
 export const WINDOW_IDS = ['terminal', 'about', 'projects', 'photos'] as const
 

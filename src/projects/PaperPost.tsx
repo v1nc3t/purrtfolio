@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { useCanvasStore, type WindowId } from '../store/useCanvasStore'
+import { useCanvasStore, type WindowId } from '../workspace/useCanvasStore'
 
 function AsciiFigure({ src }: { src: string }) {
   return (
