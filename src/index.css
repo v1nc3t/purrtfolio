@@ -74,9 +74,7 @@
 }
 
 @utility scrollbar-line {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-terminal-muted) transparent;
-
+  /* ponytail: skip scrollbar-width, it overrides ::-webkit-scrollbar in Chromium */
   &::-webkit-scrollbar {
     width: 1px;
     height: 1px;

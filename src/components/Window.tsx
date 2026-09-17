@@ -19,7 +19,9 @@ const FLOAT_DELAY: Record<WindowId, string> = {
 const DRAG_THRESHOLD = 5
 
 function isCloseControl(target: EventTarget | null) {
-  return target instanceof HTMLElement && Boolean(target.closest('button'))
+  return (
+    target instanceof HTMLElement && Boolean(target.closest('button, a'))
+  )
 }
 
 function workspaceOf(target: EventTarget | null) {
