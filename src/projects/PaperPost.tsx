@@ -1,6 +1,25 @@
 import type { ReactNode } from 'react'
 import { useCanvasStore, type WindowId } from '../workspace/useCanvasStore'
 
+export function SliceLink({
+  href,
+  children,
+}: {
+  href: string
+  children: ReactNode
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      className="slice-link"
+    >
+      {children}
+    </a>
+  )
+}
+
 function AsciiFigure({ src }: { src: string }) {
   return (
     <pre className="m-0 flex h-full min-h-24 items-center justify-center border border-[#7a7164] p-2 text-center text-[10px] leading-none">
@@ -19,7 +38,7 @@ function Copy({
   title: string
   size: 'lg' | 'base' | 'sm'
   as?: 'h2' | 'span'
-  links?: { href: string; label: string }[]
+  links?: ReactNode
   children: ReactNode
 }) {
   return (
@@ -32,20 +51,8 @@ function Copy({
         {title}
       </Title>
       <div className="mt-2 text-[10px] leading-relaxed">{children}</div>
-      {links?.length ? (
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
-          {links.map((link) => (
-            <a
-              key={link.href + link.label}
-              href={link.href}
-              target="_blank"
-              rel="noreferrer"
-              className="relative inline-block text-[8px] text-inherit no-underline after:absolute after:top-[calc(50%-0.5px)] after:left-0 after:h-px after:w-full after:origin-left after:scale-x-0 after:bg-current after:content-[''] after:transition-transform hover:after:scale-x-100"
-            >
-              {link.label}
-            </a>
-          ))}
-        </div>
+      {links ? (
+        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[8px]">{links}</div>
       ) : null}
     </div>
   )
@@ -61,7 +68,7 @@ export function FullPost({
   title: string
   figure?: string
   image?: 'left' | 'right'
-  links?: { href: string; label: string }[]
+  links?: ReactNode
   children: ReactNode
 }) {
   const copy = (
@@ -94,7 +101,7 @@ export function HalfPost({
   title: string
   figure?: string
   image?: 'over' | 'under'
-  links?: { href: string; label: string }[]
+  links?: ReactNode
   children: ReactNode
 }) {
   const copy = (

@@ -103,6 +103,18 @@
   box-shadow: inset 0 0 72px 28px #000;
 }
 
+.slice-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.slice-link:hover {
+  text-decoration: line-through;
+  text-decoration-thickness: 0.5px;
+  text-decoration-skip-ink: none;
+}
+
 @layer base {
   html,
   body,

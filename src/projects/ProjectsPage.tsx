@@ -1,4 +1,4 @@
-import { FullPost, HalfPost, SidePost } from './PaperPost'
+import { FullPost, HalfPost, SidePost, SliceLink } from './PaperPost'
 
 const PURR = [
   '______ _   _____________ ',
@@ -66,8 +66,10 @@ export function ProjectsPage() {
       </header>
 
       <p className="mt-3 mb-0 border-b border-[#7a7164] pb-3 text-center text-[10px] leading-relaxed">
-        A small page intro goes here. What this paper is, who it is for, why
-        these projects exist.
+        Welcome to my project archive, styled like a newspaper designed with ASCII charaters and themed around cats. 
+        Here you can find software, tools and side-projects I have either built or worked on.
+        I did come across a cool website that inspired me for this design: {' '}
+        <SliceLink href="https://eduardoboucas.com/">eduardoboucas.com</SliceLink>
       </p>
 
       <div className="mt-4 grid grid-cols-[minmax(0,4fr)_minmax(0,1fr)] gap-4">
@@ -76,10 +78,12 @@ export function ProjectsPage() {
             title="Headline that shares the row with its figure"
             figure={FIGURE}
             image="left"
-            links={[
-              { href: 'https://github.com', label: 'github' },
-              { href: 'https://example.com', label: 'demo' },
-            ]}
+            links={
+              <>
+                <SliceLink href="https://github.com">github</SliceLink>
+                <SliceLink href="https://example.com">demo</SliceLink>
+              </>
+            }
           >
             Template copy sits beside the figure. Pass image="right" to flip
             them. Drop another FullPost in this section to add a story.
@@ -87,7 +91,7 @@ export function ProjectsPage() {
 
           <HalfPost
             title="Shorter dispatch, left"
-            links={[{ href: 'https://github.com', label: 'github' }]}
+            links={<SliceLink href="https://github.com">github</SliceLink>}
           >
             Text only. Add figure and image="over" or image="under" when you
             want a picture.
@@ -97,10 +101,12 @@ export function ProjectsPage() {
             title="Shorter dispatch, right"
             figure={FIGURE}
             image="under"
-            links={[
-              { href: 'https://github.com', label: 'source' },
-              { href: 'https://example.com', label: 'live' },
-            ]}
+            links={
+              <>
+                <SliceLink href="https://github.com">source</SliceLink>
+                <SliceLink href="https://example.com">live</SliceLink>
+              </>
+            }
           >
             Half-width post with the figure under the copy.
           </HalfPost>
