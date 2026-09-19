@@ -1,4 +1,4 @@
-import { FullPost, HalfPost, SidePost, SliceLink } from './PaperPost'
+import { CatPost, ClockPost, FullPost, HalfPost, SidePost, SliceLink } from './PaperPost'
 
 const PURR = [
   '______ _   _____________ ',
@@ -29,7 +29,13 @@ const TIMES = [
 
 const MASTHEAD = PURR.map((line, i) => `${line}  ${CAT[i]}  ${TIMES[i]}`).join('\n')
 
-const FIGURE = ['  /\\_/\\  ', ' ( o.o ) ', '  > ^ <  '].join('\n')
+const FIGURE_CAMERA = [
+  '     _     ',
+  ' _n_|_|_,_ ',
+  '|===.-.===|',
+  '|  ((_))  |',
+  '`===`-`===`',
+].join('\n')
 
 const FIGURE_NYATCHING = [
 ' @@@@                           @@@@ ',
@@ -76,7 +82,7 @@ export function ProjectsPage() {
         <section className="grid grid-cols-2 gap-x-4 gap-y-6 border-r border-[#7a7164] pr-4">
           
           <FullPost
-            title="Placed 4th in robotics Hackathon"
+            title="Placed 4th in a robotics Hackathon"
             date='13 Sep 2026'
           >
             <p>
@@ -84,12 +90,12 @@ export function ProjectsPage() {
               where we had to build a robot, from scratch, that can carry a small payload and drop it.
             </p>
             <p>
-              With no background or knowledge in robotics, we got an introduction. We build a robot, programmed it, and drove it to a close call onto the podium.
-              I enjoyed it a lot, working together, designing, debugging, and building it.    
+              With no background or knowledge in robotics, we build a robot, programmed it, and drove it to a close call onto the podium.
+              I enjoyed it a lot, working together, designing, debugging, and building.    
             </p>
             <p>
-            The competition consisted in driving the robot on a multi story course made of wood. Collecting miniture ducks from droppers and bringging them back to your box.
-            Did feel a little sad not winnig, because I had so mcuh fun that I didn't even mind.
+              The competition consisted in driving the robot on a multi-story course made of wood, collecting miniture ducks from droppers and bringging them back to a box.
+              I did feel a little sad not winnig, but because I had so mcuh fun that I didn't even mind.
             </p>
           </FullPost>
 
@@ -106,7 +112,8 @@ export function ProjectsPage() {
               </>
             }
           >
-            <p>Have you ever stared to many TV shows and forget at which episode you are? 
+            <p>
+              Have you ever stared to many TV shows and forget at which episode you are? 
               Have you finished a season and never got reminded a new season is out?
             </p>
             <p>
@@ -153,11 +160,12 @@ export function ProjectsPage() {
           </HalfPost>
         </section>
 
-        <aside>
-          <SidePost title="See the photos" to="photos">
-            Side panel post. Click to open another window. Swap this for a game
-            or an internal jump later.
+        <aside className="flex flex-col gap-6">
+          <ClockPost />
+          <SidePost title="Photography" to="photos" figure={FIGURE_CAMERA}>
+            here are some photos I have taken.
           </SidePost>
+          <CatPost />
         </aside>
       </div>
     </div>
