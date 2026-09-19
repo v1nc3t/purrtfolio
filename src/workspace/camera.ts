@@ -1,4 +1,4 @@
-import { worldRect } from './world'
+import { WINDOW_INSET, windowSizeFor, worldRect } from './world'
 
 export type Rect = {
   x: number
@@ -21,16 +21,23 @@ export type Camera = {
 export const MIN_SCALE = 0.15
 export const MAX_SCALE = 2
 export const FOCUS_MAX_SCALE = 1.6
-export const FOCUS_PADDING = 64
 export const OVERVIEW_PADDING = 120
 export const DEFAULT_CAMERA: Camera = { x: 0, y: 0, scale: 1 }
+
+function worldForViewport(viewport: Viewport) {
+  return worldRect(windowSizeFor(viewport))
+}
+
+function focusPad(viewport: Viewport) {
+  return Math.min(viewport.width, viewport.height) * WINDOW_INSET
+}
 
 export function clampScale(scale: number, minScale = MIN_SCALE) {
   return Math.min(MAX_SCALE, Math.max(minScale, scale))
 }
 
 export function minScaleForViewport(viewport: Viewport) {
-  const world = worldRect()
+  const world = worldForViewport(viewport)
   return Math.min(
     viewport.width / Math.max(world.width, 1),
     viewport.height / Math.max(world.height, 1),
@@ -38,7 +45,7 @@ export function minScaleForViewport(viewport: Viewport) {
 }
 
 export function clampCamera(camera: Camera, viewport: Viewport): Camera {
-  const world = worldRect()
+  const world = worldForViewport(viewport)
   const scale = clampScale(camera.scale, minScaleForViewport(viewport))
   const worldW = world.width * scale
   const worldH = world.height * scale
@@ -118,7 +125,7 @@ export function cameraForRect(
 }
 
 export function cameraFocusingWindow(rect: Rect, viewport: Viewport): Camera {
-  return cameraForRect(rect, viewport, FOCUS_PADDING, FOCUS_MAX_SCALE)
+  return cameraForRect(rect, viewport, focusPad(viewport), FOCUS_MAX_SCALE)
 }
 
 export function cameraFittingRects(rects: Rect[], viewport: Viewport): Camera {

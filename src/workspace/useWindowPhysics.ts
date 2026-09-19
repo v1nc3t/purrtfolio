@@ -7,6 +7,8 @@ export function useWindowPhysics() {
   const order = useCanvasStore(useShallow((state) => state.order))
   const overview = useCanvasStore((state) => state.isOverviewMode)
   const focusedId = useCanvasStore((state) => state.focusedId)
+  const viewportW = useCanvasStore((state) => state.viewport.width)
+  const viewportH = useCanvasStore((state) => state.viewport.height)
 
   useEffect(() => {
     const physics = getWindowPhysics()
@@ -21,7 +23,7 @@ export function useWindowPhysics() {
 
   useEffect(() => {
     getWindowPhysics().sync(useCanvasStore.getState().windows)
-  }, [order])
+  }, [order, viewportW, viewportH])
 
   useEffect(() => {
     getWindowPhysics().setAmbient(overview, focusedId)
