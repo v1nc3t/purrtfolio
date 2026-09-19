@@ -52,10 +52,32 @@
 
 .window-header {
   box-shadow: inset 0 -1px 0 0 var(--color-terminal-muted);
+  min-height: 2.25rem;
 }
 
 .window-frame[data-focused='true'] .window-header {
   box-shadow: inset 0 -1px 0 0 var(--color-terminal-accent);
+}
+
+.window-shell-paper {
+  background: #1d140d;
+  box-shadow: none;
+  border: 4px double #000000;
+}
+
+.window-frame[data-focused='true'] .window-shell-paper {
+  box-shadow: none;
+  border-color: #f3dcb4;
+}
+
+.window-header-paper {
+  box-shadow: inset 0 -1px 0 0 #a37c4f;
+  font-size: clamp(0.6875rem, 1.15cqi, 0.875rem);
+}
+
+.window-frame[data-focused='true'] .window-header-paper {
+  box-shadow: inset 0 -1px 0 0 #f3dcb4;
+  font-size: clamp(0.6875rem, 1.15cqi, 0.875rem);
 }
 
 .window-frame:not([data-overview='true']) .window-shell {
@@ -99,9 +121,9 @@
 }
 
 .projects-page {
-  background: #0c0b09;
-  color: #e6d9c2;
-  box-shadow: inset 0 0 72px 28px #000;
+  background: #1a120c;
+  color: #ffeed0;
+  box-shadow: inset 0 0 72px 28px #140c08;
   font-size: clamp(0.6875rem, 1.15cqi, 0.875rem);
 }
 

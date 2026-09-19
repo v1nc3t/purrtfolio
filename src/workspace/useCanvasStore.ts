@@ -60,7 +60,7 @@ type CanvasStore = {
 const TITLES: Record<WindowId, string> = {
   terminal: 'terminal',
   about: 'about',
-  projects: 'projects',
+  projects: 'purr times - project archive',
   photos: 'photos',
 }
 

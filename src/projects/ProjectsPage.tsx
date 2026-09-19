@@ -62,14 +62,14 @@ const FIGURE_NYATCHING = [
 export function ProjectsPage() {
   return (
     <div className="projects-page scrollbar-line h-full overflow-auto px-4 pt-8 pb-10">
-      <header className="border-y border-[#7a7164] py-8">
+      <header className="border-y border-[#a37c4f] py-8">
         <h1 className="sr-only">Purr Times</h1>
         <pre className="mx-auto m-0 w-fit font-mono text-[1.5em] leading-[1.08]">
           {MASTHEAD}
         </pre>
       </header>
 
-      <p className="mt-6 mb-0 border-b border-[#7a7164] pb-5 text-center leading-relaxed">
+      <p className="mt-6 mb-0 border-b border-[#a37c4f] pb-5 text-center leading-relaxed">
         <p>
           Welcome to my project archive, styled like a newspaper, designed with ASCII charaters, and themed around cats. Here you can find software, tools and side-projects I have either built or worked on.
         </p>
@@ -79,7 +79,7 @@ export function ProjectsPage() {
       </p>
 
       <div className="mt-6 grid grid-cols-[minmax(0,4fr)_minmax(0,1fr)] gap-x-4 gap-y-6">
-        <section className="grid grid-cols-2 gap-x-4 gap-y-6 border-r border-[#7a7164] pr-4">
+        <section className="grid grid-cols-2 gap-x-4 gap-y-6 border-r border-[#a37c4f] pr-4">
           
           <FullPost
             title="Placed 4th in a robotics Hackathon"

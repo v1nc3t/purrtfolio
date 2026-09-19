@@ -85,7 +85,7 @@ export function FullPost({
   )
 
   return (
-    <article className="col-span-2 border-b border-[#7a7164] pb-6 transition-opacity hover:opacity-80">
+    <article className="col-span-2 border-b border-[#a37c4f] pb-6 transition-opacity hover:opacity-80">
       {figure ? (
         <div className="grid grid-cols-2 gap-4">
           {image === 'left' ? <AsciiFigure src={figure} /> : copy}
@@ -121,7 +121,7 @@ export function HalfPost({
   const pic = figure ? <AsciiFigure src={figure} /> : null
 
   return (
-    <article className="border-b border-[#7a7164] pb-6 transition-opacity hover:opacity-80">
+    <article className="border-b border-[#a37c4f] pb-6 transition-opacity hover:opacity-80">
       <div className="flex flex-col gap-2">
         {image === 'over' ? pic : null}
         {copy}
@@ -147,7 +147,7 @@ export function SidePost({
   return (
     <button
       type="button"
-      className="flex w-full cursor-pointer flex-col gap-4 border-x-0 border-t-0 border-b border-[#7a7164] bg-transparent p-0 pb-6 text-left text-[#e6d9c2] transition-opacity hover:opacity-80"
+      className="flex w-full cursor-pointer flex-col gap-4 border-x-0 border-t-0 border-b border-[#a37c4f] bg-transparent p-0 pb-6 text-left text-[#f3dcb4] transition-opacity hover:opacity-80"
       onClick={() => useCanvasStore.getState().open(to)}
     >
       {figure ? <AsciiFigure src={figure} className="w-full leading-[1.5]" /> : null}
@@ -199,7 +199,7 @@ export function ClockPost() {
 
   return (
     <article
-      className="flex w-full flex-col items-center gap-5 border-b border-[#7a7164] pt-6 pb-8 text-center font-['Courier_New',Courier,monospace] text-[1.15em] font-bold transition-opacity hover:opacity-80"
+      className="flex w-full flex-col items-center gap-5 border-b border-[#a37c4f] pt-6 pb-8 text-center font-['Courier_New',Courier,monospace] text-[1.15em] font-bold transition-opacity hover:opacity-80"
       aria-label={`${time} ${date}`}
     >
       <pre className="m-0 font-[inherit] leading-[1.2]">{asciiText(time)}</pre>
@@ -244,7 +244,7 @@ export function CatPost() {
   return (
     <button
       type="button"
-      className="w-full cursor-pointer border-x-0 border-t-0 border-b border-[#7a7164] bg-transparent p-0 pt-8 pb-12 text-[#e6d9c2] transition-opacity hover:opacity-80"
+      className="w-full cursor-pointer border-x-0 border-t-0 border-b border-[#a37c4f] bg-transparent p-0 pt-8 pb-12 text-[#f3dcb4] transition-opacity hover:opacity-80"
       aria-label={awake ? 'Cat is awake' : 'Sleeping cat'}
       onClick={() => {
         setAwake(true)
