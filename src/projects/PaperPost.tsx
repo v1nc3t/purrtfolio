@@ -22,7 +22,7 @@ export function SliceLink({
 
 function AsciiFigure({ src }: { src: string }) {
   return (
-    <pre className="m-0 flex h-full min-h-24 items-center justify-center border border-[#7a7164] p-2 text-center text-[10px] leading-none">
+    <pre className="m-0 flex h-full min-h-24 items-center justify-center border border-[#7a7164] p-2 text-center text-[1em] leading-none">
       {src}
     </pre>
   )
@@ -46,16 +46,16 @@ function Copy({
   return (
     <div className="min-w-0">
       <Title
-        className={`block leading-tight ${
-          size === 'lg' ? 'text-xl' : size === 'base' ? 'text-lg' : 'text-sm'
+        className={`block font-bold leading-tight ${
+          size === 'lg' ? 'text-[2em]' : size === 'base' ? 'text-[1.73em]' : 'text-[1.36em]'
         }`}
       >
         {title}
       </Title>
-      {date ? <p className="mt-1 text-[8px] opacity-70">{date}</p> : null}
-      <div className="mt-2 text-[10px] leading-relaxed">{children}</div>
+      {date ? <p className="mt-1 text-[0.82em] opacity-70">{date}</p> : null}
+      <div className="mt-2 leading-relaxed [&_p+p]:mt-2">{children}</div>
       {links ? (
-        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[8px]">{links}</div>
+        <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[0.82em]">{links}</div>
       ) : null}
     </div>
   )
@@ -83,7 +83,7 @@ export function FullPost({
   )
 
   return (
-    <article className="col-span-2 border-b border-[#7a7164] pb-4">
+    <article className="col-span-2 border-b border-[#7a7164] pb-6">
       {figure ? (
         <div className="grid grid-cols-2 gap-4">
           {image === 'left' ? <AsciiFigure src={figure} /> : copy}
@@ -119,7 +119,7 @@ export function HalfPost({
   const pic = figure ? <AsciiFigure src={figure} /> : null
 
   return (
-    <article className="border-b border-[#7a7164] pb-4">
+    <article className="border-b border-[#7a7164] pb-6">
       <div className="flex flex-col gap-2">
         {image === 'over' ? pic : null}
         {copy}
