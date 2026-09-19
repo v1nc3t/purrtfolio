@@ -66,7 +66,7 @@ export function ProjectsPage() {
       </header>
 
       <p className="mt-3 mb-0 border-b border-[#7a7164] pb-3 text-center text-[10px] leading-relaxed">
-        Welcome to my project archive, styled like a newspaper designed with ASCII charaters and themed around cats. 
+        Welcome to my project archive, styled like a newspaper, designed with ASCII charaters, and themed around cats. 
         Here you can find software, tools and side-projects I have either built or worked on.
         I did come across a cool website that inspired me for this design: {' '}
         <SliceLink href="https://eduardoboucas.com/">eduardoboucas.com</SliceLink>
@@ -76,6 +76,7 @@ export function ProjectsPage() {
         <section className="grid grid-cols-2 gap-4 border-r border-[#7a7164] pr-4">
           <FullPost
             title="Headline that shares the row with its figure"
+            date="19 Sep 2026"
             figure={FIGURE}
             image="left"
             links={

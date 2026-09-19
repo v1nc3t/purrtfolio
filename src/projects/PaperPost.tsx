@@ -30,12 +30,14 @@ function AsciiFigure({ src }: { src: string }) {
 
 function Copy({
   title,
+  date,
   size,
   as: Title = 'h2',
   links,
   children,
 }: {
   title: string
+  date?: string
   size: 'lg' | 'base' | 'sm'
   as?: 'h2' | 'span'
   links?: ReactNode
@@ -50,6 +52,7 @@ function Copy({
       >
         {title}
       </Title>
+      {date ? <p className="mt-1 text-[8px] opacity-70">{date}</p> : null}
       <div className="mt-2 text-[10px] leading-relaxed">{children}</div>
       {links ? (
         <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[8px]">{links}</div>
@@ -60,19 +63,21 @@ function Copy({
 
 export function FullPost({
   title,
+  date,
   figure,
   image = 'right',
   links,
   children,
 }: {
   title: string
+  date?: string
   figure?: string
   image?: 'left' | 'right'
   links?: ReactNode
   children: ReactNode
 }) {
   const copy = (
-    <Copy title={title} size="lg" links={links}>
+    <Copy title={title} date={date} size="lg" links={links}>
       {children}
     </Copy>
   )
@@ -93,19 +98,21 @@ export function FullPost({
 
 export function HalfPost({
   title,
+  date,
   figure,
   image = 'over',
   links,
   children,
 }: {
   title: string
+  date?: string
   figure?: string
   image?: 'over' | 'under'
   links?: ReactNode
   children: ReactNode
 }) {
   const copy = (
-    <Copy title={title} size="base" links={links}>
+    <Copy title={title} date={date} size="base" links={links}>
       {children}
     </Copy>
   )
@@ -124,10 +131,12 @@ export function HalfPost({
 
 export function SidePost({
   title,
+  date,
   to,
   children,
 }: {
   title: string
+  date?: string
   to: WindowId
   children: ReactNode
 }) {
@@ -137,7 +146,7 @@ export function SidePost({
       className="w-full cursor-pointer border border-[#7a7164] bg-transparent p-3 text-left text-[#e6d9c2]"
       onClick={() => useCanvasStore.getState().open(to)}
     >
-      <Copy title={title} size="sm" as="span">
+      <Copy title={title} date={date} size="sm" as="span">
         {children}
       </Copy>
     </button>
