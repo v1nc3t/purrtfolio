@@ -1,5 +1,4 @@
 import { PHYSICS } from './windowPhysics'
-import { DEFAULT_WINDOW_SIZE } from './world'
 
 export type Rect = {
   x: number
@@ -11,7 +10,6 @@ export type Rect = {
 export type Direction = 'left' | 'right' | 'up' | 'down'
 
 export const ORBIT_SLOTS = 3
-export { DEFAULT_WINDOW_SIZE } from './world'
 
 export function spawnGap() {
   return PHYSICS.padding + PHYSICS.magnetRange
@@ -19,7 +17,7 @@ export function spawnGap() {
 
 export function orbitRadius(
   hub: Pick<Rect, 'width' | 'height'>,
-  size = DEFAULT_WINDOW_SIZE,
+  size: Pick<Rect, 'width' | 'height'>,
   padding = spawnGap(),
   angle = -Math.PI / 2,
 ) {
@@ -35,7 +33,7 @@ export function orbitRadius(
 export function placeAroundHub(
   hub: Rect,
   satellites: Rect[],
-  size = DEFAULT_WINDOW_SIZE,
+  size: Pick<Rect, 'width' | 'height'>,
 ): { x: number; y: number } {
   const origin = center(hub)
   const occupied = satellites.map((rect) => {

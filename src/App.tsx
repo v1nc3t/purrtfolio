@@ -1,7 +1,7 @@
 import { useState } from 'react'
-import { WelcomePage } from './components/WelcomePage'
-import { Workspace } from './components/Workspace'
-import { readSessionUsername, writeSessionUsername } from './lib/username'
+import { WelcomePage } from './welcome/WelcomePage'
+import { Workspace } from './workspace/Workspace'
+import { readSessionUsername, writeSessionUsername } from './welcome/username'
 
 function App() {
   const [username, setUsername] = useState<string | null>(readSessionUsername)

@@ -9,9 +9,9 @@ import {
   type KeyboardEvent,
   type SyntheticEvent,
 } from 'react'
-import { BlockCursor } from './BlockCursor'
-import { runCommand } from '../lib/commands'
-import { useCanvasStore } from '../store/useCanvasStore'
+import { BlockCursor } from '../shared/BlockCursor'
+import { useCanvasStore } from '../workspace/useCanvasStore'
+import { runCommand } from './commands'
 
 type TerminalProps = {
   username: string
@@ -161,7 +161,7 @@ export const Terminal = memo(function Terminal({ username }: TerminalProps) {
     <form className="flex h-full flex-col" onSubmit={handleSubmit}>
       <div
         ref={logRef}
-        className="scrollbar-line min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 text-sm leading-none"
+        className="scrollbar-line min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 text-[clamp(1.05rem,1.8cqi,1.35rem)] leading-none"
         onClick={handleLogClick}
       >
         {lines.map((line, index) =>

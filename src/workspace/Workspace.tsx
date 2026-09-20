@@ -1,10 +1,11 @@
 import { memo, useEffect, useRef, type ReactNode } from 'react'
 import { useShallow } from 'zustand/react/shallow'
-import { useCanvasCamera } from '../hooks/useCanvasCamera'
-import { useWindowPhysics } from '../hooks/useWindowPhysics'
-import { useWindowShortcuts } from '../hooks/useWindowShortcuts'
-import { useCanvasStore, type WindowId } from '../store/useCanvasStore'
-import { Terminal } from './Terminal'
+import { ProjectsPage } from '../projects/ProjectsPage'
+import { Terminal } from '../terminal/Terminal'
+import { useCanvasCamera } from './useCanvasCamera'
+import { useCanvasStore, type WindowId } from './useCanvasStore'
+import { useWindowPhysics } from './useWindowPhysics'
+import { useWindowShortcuts } from './useWindowShortcuts'
 import { Window } from './Window'
 
 type WorkspaceProps = {
@@ -21,6 +22,8 @@ const WindowBody = memo(function WindowBody({
   switch (id) {
     case 'terminal':
       return <Terminal username={username} />
+    case 'projects':
+      return <ProjectsPage />
     default:
       return <div className="h-full" />
   }

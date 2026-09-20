@@ -1,8 +1,8 @@
 import { useState, type PointerEvent, type ReactNode } from 'react'
-import { pointerToWorld } from '../lib/camera'
-import { panGesture } from '../lib/panGesture'
-import { getWindowPhysics } from '../lib/windowPhysics'
-import { useCanvasStore, type WindowId } from '../store/useCanvasStore'
+import { pointerToWorld } from './camera'
+import { panGesture } from './panGesture'
+import { useCanvasStore, type WindowId } from './useCanvasStore'
+import { getWindowPhysics } from './windowPhysics'
 
 type WindowProps = {
   id: WindowId
@@ -18,8 +18,51 @@ const FLOAT_DELAY: Record<WindowId, string> = {
 
 const DRAG_THRESHOLD = 5
 
+function PaperBanner({
+  title,
+  focused,
+  closable,
+  onClose,
+  onPointerDown,
+}: {
+  title: string
+  focused: boolean
+  closable: boolean
+  onClose: () => void
+  onPointerDown: (event: PointerEvent<HTMLElement>) => void
+}) {
+  return (
+    <header
+      className={`window-header window-header-paper flex shrink-0 cursor-grab touch-none select-none items-center py-1 font-mono leading-none active:cursor-grabbing ${
+        focused ? 'text-[#d5cec2]' : 'text-[#6e655c] opacity-75'
+      }`}
+      onPointerDown={onPointerDown}
+    >
+      {closable ? (
+        <span className="invisible shrink-0 pr-1 pl-3" aria-hidden>
+          [x]
+        </span>
+      ) : null}
+      <span className="min-w-0 flex-1 truncate px-2 text-center">{title}</span>
+      {closable ? (
+        <button
+          type="button"
+          aria-label={`Close ${title}`}
+          className="shrink-0 cursor-pointer pr-3 pl-1 leading-none [&:hover]:text-red-500"
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={onClose}
+        >
+          [x]
+        </button>
+      ) : null}
+    </header>
+  )
+}
+
 function isCloseControl(target: EventTarget | null) {
-  return target instanceof HTMLElement && Boolean(target.closest('button'))
+  return (
+    target instanceof HTMLElement && Boolean(target.closest('button, a'))
+  )
 }
 
 function workspaceOf(target: EventTarget | null) {
@@ -136,6 +179,7 @@ export function Window({ id, children }: WindowProps) {
   }
 
   const closable = id !== 'terminal'
+  const paper = id === 'projects'
 
   return (
     <section
@@ -156,33 +200,45 @@ export function Window({ id, children }: WindowProps) {
       } ${dragging ? 'cursor-grabbing' : ''}`}
     >
       <div
-        className="window-shell animate-window-float flex h-full flex-col bg-terminal-bg motion-reduce:animate-none"
+        className={`window-shell animate-window-float flex h-full flex-col motion-reduce:animate-none ${
+          paper ? 'window-shell-paper' : 'bg-terminal-bg'
+        }`}
         style={{
           animationDelay: FLOAT_DELAY[id],
           animationPlayState: dragging ? 'paused' : 'running',
         }}
       >
-        <header
-          className={`window-header flex shrink-0 cursor-grab touch-none select-none items-center text-sm active:cursor-grabbing ${
-            focused
-              ? 'bg-terminal-accent/10 text-terminal-accent'
-              : 'text-terminal-muted opacity-75'
-          }`}
-          onPointerDown={handleHeaderDown}
-        >
-          <span className="min-w-0 flex-1 truncate px-3 py-1">{frame.title}</span>
-          {closable ? (
-            <button
-              type="button"
-              aria-label={`Close ${frame.title}`}
-              className="cursor-pointer px-2 py-0.5 text-lg leading-none text-terminal-muted [&:hover]:text-red-500"
-              onPointerDown={(event) => event.stopPropagation()}
-              onClick={() => useCanvasStore.getState().close(id)}
-            >
-              ×
-            </button>
-          ) : null}
-        </header>
+        {paper ? (
+          <PaperBanner
+            title={frame.title}
+            focused={focused}
+            closable={closable}
+            onClose={() => useCanvasStore.getState().close(id)}
+            onPointerDown={handleHeaderDown}
+          />
+        ) : (
+          <header
+            className={`window-header flex shrink-0 cursor-grab touch-none select-none items-center py-1.5 text-sm active:cursor-grabbing ${
+              focused
+                ? 'bg-terminal-accent/10 text-terminal-accent'
+                : 'text-terminal-muted opacity-75'
+            }`}
+            onPointerDown={handleHeaderDown}
+          >
+            <span className="min-w-0 flex-1 truncate px-3">{frame.title}</span>
+            {closable ? (
+              <button
+                type="button"
+                aria-label={`Close ${frame.title}`}
+                className="cursor-pointer py-0.5 pr-3 pl-2 text-lg leading-none text-terminal-muted [&:hover]:text-red-500"
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={() => useCanvasStore.getState().close(id)}
+              >
+                ×
+              </button>
+            ) : null}
+          </header>
+        )}
         <div
           className={`min-h-0 flex-1 ${focused ? '' : 'opacity-75'} ${
             overview ? 'pointer-events-none' : ''

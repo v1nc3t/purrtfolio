@@ -1,4 +1,5 @@
-export const DEFAULT_WINDOW_SIZE = { width: 640, height: 448 }
+export const WINDOW_ASPECT = 4 / 3
+export const WINDOW_INSET = 0.08
 export const WORLD_WINDOWS = 5
 
 export type WorldRect = {
@@ -8,9 +9,22 @@ export type WorldRect = {
   height: number
 }
 
-export function worldRect(): WorldRect {
-  const width = DEFAULT_WINDOW_SIZE.width * WORLD_WINDOWS
-  const height = DEFAULT_WINDOW_SIZE.height * WORLD_WINDOWS
+export function windowSizeFor(viewport: { width: number; height: number }) {
+  const pad = Math.min(viewport.width, viewport.height) * WINDOW_INSET
+  const maxW = Math.max(1, viewport.width - pad * 2)
+  const maxH = Math.max(1, viewport.height - pad * 2)
+  let width = maxW
+  let height = width / WINDOW_ASPECT
+  if (height > maxH) {
+    height = maxH
+    width = height * WINDOW_ASPECT
+  }
+  return { width, height }
+}
+
+export function worldRect(size: { width: number; height: number }): WorldRect {
+  const width = size.width * WORLD_WINDOWS
+  const height = size.height * WORLD_WINDOWS
   return {
     x: -width / 2,
     y: -height / 2,
@@ -20,7 +34,7 @@ export function worldRect(): WorldRect {
 }
 
 export function clampFrame<T extends WorldRect>(frame: T): T {
-  const world = worldRect()
+  const world = worldRect(frame)
   const minX = world.x
   const maxX = Math.max(world.x, world.x + world.width - frame.width)
   const minY = world.y

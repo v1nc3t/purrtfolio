@@ -5,8 +5,8 @@ import {
   WINDOW_HOTKEYS,
   type HotkeyAction,
   type HotkeyMap,
-} from '../lib/hotkeys'
-import { useCanvasStore } from '../store/useCanvasStore'
+} from '../shared/hotkeys'
+import { useCanvasStore } from './useCanvasStore'
 
 const OVERVIEW_ARROWS: Record<string, HotkeyAction> = {
   ArrowLeft: 'focusLeft',

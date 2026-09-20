@@ -1,8 +1,8 @@
 import { useEffect, type RefObject } from 'react'
-import { screenPoint } from '../lib/camera'
-import { isTypingHotkeyTarget } from '../lib/hotkeys'
-import { panGesture } from '../lib/panGesture'
-import { useCanvasStore } from '../store/useCanvasStore'
+import { isTypingHotkeyTarget } from '../shared/hotkeys'
+import { screenPoint } from './camera'
+import { panGesture } from './panGesture'
+import { useCanvasStore } from './useCanvasStore'
 
 const ZOOM_INTENSITY = 0.0016
 const DRAG_THRESHOLD = 5

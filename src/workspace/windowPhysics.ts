@@ -4,8 +4,8 @@ import {
   type Simulation,
   type SimulationNodeDatum,
 } from 'd3-force'
+import type { WindowFrame, WindowId } from './useCanvasStore'
 import { clampCenter } from './world'
-import type { WindowFrame, WindowId } from '../store/useCanvasStore'
 
 export const PHYSICS = {
   padding: 48,

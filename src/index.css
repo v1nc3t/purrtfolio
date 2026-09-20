@@ -36,6 +36,7 @@
 }
 
 .window-frame {
+  container-type: inline-size;
   backface-visibility: hidden;
 }
 
@@ -51,10 +52,32 @@
 
 .window-header {
   box-shadow: inset 0 -1px 0 0 var(--color-terminal-muted);
+  min-height: 2.25rem;
 }
 
 .window-frame[data-focused='true'] .window-header {
   box-shadow: inset 0 -1px 0 0 var(--color-terminal-accent);
+}
+
+.window-shell-paper {
+  background: #0c0b09;
+  box-shadow: none;
+  border: 4px double #000000;
+}
+
+.window-frame[data-focused='true'] .window-shell-paper {
+  box-shadow: none;
+  border-color: #d5cec2;
+}
+
+.window-header-paper {
+  box-shadow: inset 0 -1px 0 0 #6e655c;
+  font-size: clamp(0.6875rem, 1.15cqi, 0.875rem);
+}
+
+.window-frame[data-focused='true'] .window-header-paper {
+  box-shadow: inset 0 -1px 0 0 #d5cec2;
+  font-size: clamp(0.6875rem, 1.15cqi, 0.875rem);
 }
 
 .window-frame:not([data-overview='true']) .window-shell {
@@ -74,9 +97,7 @@
 }
 
 @utility scrollbar-line {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-terminal-muted) transparent;
-
+  /* ponytail: skip scrollbar-width, it overrides ::-webkit-scrollbar in Chromium */
   &::-webkit-scrollbar {
     width: 1px;
     height: 1px;
@@ -97,6 +118,25 @@
   &::-webkit-scrollbar-corner {
     background: transparent;
   }
+}
+
+.projects-page {
+  background: #0c0b09;
+  color: #d5cec2;
+  box-shadow: inset 0 0 72px 28px #090808;
+  font-size: clamp(0.6875rem, 1.15cqi, 0.875rem);
+}
+
+.slice-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.slice-link:hover {
+  text-decoration: line-through;
+  text-decoration-thickness: 0.5px;
+  text-decoration-skip-ink: none;
 }
 
 @layer base {

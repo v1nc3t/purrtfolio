@@ -8,14 +8,13 @@ import {
   zoomCamera as scaleCamera,
   type Camera,
   type Viewport,
-} from '../lib/camera'
-import { clampFrame } from '../lib/world'
+} from './camera'
 import {
-  DEFAULT_WINDOW_SIZE,
   pickWindowInDirection,
   placeAroundHub,
   type Direction,
-} from '../lib/layout'
+} from './layout'
+import { clampFrame, windowSizeFor } from './world'
 
 export const WINDOW_IDS = ['terminal', 'about', 'projects', 'photos'] as const
 
@@ -61,7 +60,7 @@ type CanvasStore = {
 const TITLES: Record<WindowId, string> = {
   terminal: 'terminal',
   about: 'about',
-  projects: 'projects',
+  projects: 'purr times - project archive',
   photos: 'photos',
 }
 
@@ -84,15 +83,17 @@ function placeWindow(
   id: WindowId,
   windows: Partial<Record<WindowId, WindowFrame>>,
   zIndex: number,
+  viewport: Viewport,
 ): WindowFrame {
+  const size = windowSizeFor(viewport)
   const existing = framesOf(windows)
   const hub = windows.terminal
   const satellites = existing.filter((frame) => frame.id !== 'terminal')
   const origin = hub
-    ? placeAroundHub(hub, satellites)
+    ? placeAroundHub(hub, satellites, size)
     : {
-        x: -DEFAULT_WINDOW_SIZE.width / 2,
-        y: -DEFAULT_WINDOW_SIZE.height / 2,
+        x: -size.width / 2,
+        y: -size.height / 2,
       }
 
   return clampFrame({
@@ -100,8 +101,8 @@ function placeWindow(
     title: TITLES[id],
     x: origin.x,
     y: origin.y,
-    width: DEFAULT_WINDOW_SIZE.width,
-    height: DEFAULT_WINDOW_SIZE.height,
+    width: size.width,
+    height: size.height,
     zIndex,
   })
 }
@@ -147,13 +148,14 @@ function startCameraAnimation() {
 
 function createInitialState() {
   const viewport = readViewport()
+  const size = windowSizeFor(viewport)
   const terminal: WindowFrame = {
     id: 'terminal',
     title: TITLES.terminal,
-    x: -DEFAULT_WINDOW_SIZE.width / 2,
-    y: -DEFAULT_WINDOW_SIZE.height / 2,
-    width: DEFAULT_WINDOW_SIZE.width,
-    height: DEFAULT_WINDOW_SIZE.height,
+    x: -size.width / 2,
+    y: -size.height / 2,
+    width: size.width,
+    height: size.height,
     zIndex: 1,
   }
 
@@ -180,7 +182,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
       return
     }
 
-    const frame = placeWindow(id, windows, nextZ(windows))
+    const frame = placeWindow(id, windows, nextZ(windows), get().viewport)
     set({
       order: [...order, id],
       windows: { ...windows, [id]: frame },
@@ -352,10 +354,30 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   setViewport: (viewport) => {
-    set({
-      viewport,
-      camera: boundCamera(get().camera, viewport),
-    })
+    const { windows, focusedId, isOverviewMode, camera, cameraLocked } = get()
+    const size = windowSizeFor(viewport)
+    const nextWindows: Partial<Record<WindowId, WindowFrame>> = {}
+    for (const id of Object.keys(windows) as WindowId[]) {
+      const frame = windows[id]
+      if (!frame) continue
+      const cx = frame.x + frame.width / 2
+      const cy = frame.y + frame.height / 2
+      nextWindows[id] = clampFrame({
+        ...frame,
+        width: size.width,
+        height: size.height,
+        x: cx - size.width / 2,
+        y: cy - size.height / 2,
+      })
+    }
+
+    const nextCamera = isOverviewMode
+      ? boundCamera(cameraFittingRects(framesOf(nextWindows), viewport), viewport)
+      : cameraLocked && focusedId && nextWindows[focusedId]
+        ? boundCamera(cameraFocusingWindow(nextWindows[focusedId], viewport), viewport)
+        : boundCamera(camera, viewport)
+
+    set({ viewport, windows: nextWindows, camera: nextCamera })
   },
 
   setWindowPosition: (id, x, y) => {
