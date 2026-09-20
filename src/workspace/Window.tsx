@@ -34,7 +34,7 @@ function PaperBanner({
   return (
     <header
       className={`window-header window-header-paper flex shrink-0 cursor-grab touch-none select-none items-center py-1 font-mono leading-none active:cursor-grabbing ${
-        focused ? 'text-[#f3dcb4]' : 'text-[#a37c4f] opacity-75'
+        focused ? 'text-[#d5cec2]' : 'text-[#6e655c] opacity-75'
       }`}
       onPointerDown={onPointerDown}
     >
