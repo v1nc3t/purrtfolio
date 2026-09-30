@@ -21,12 +21,20 @@ function ControlIcon({ d }: { d: string }) {
 
 function WindowControls({
   title,
+  canMinimize,
   canClose,
+  maximized,
+  onMinimize,
+  onMaximize,
   onClose,
   className = '',
 }: {
   title: string
+  canMinimize: boolean
   canClose: boolean
+  maximized: boolean
+  onMinimize: () => void
+  onMaximize: () => void
   onClose: () => void
   className?: string
 }) {
@@ -35,11 +43,26 @@ function WindowControls({
       className={`window-controls ${className}`}
       onPointerDown={(event) => event.stopPropagation()}
     >
-      <button type="button" disabled aria-label={`minimize ${title}`}>
+      <button
+        type="button"
+        aria-label={`minimize ${title}`}
+        disabled={!canMinimize}
+        onClick={onMinimize}
+      >
         <ControlIcon d="M1 7.5h8" />
       </button>
-      <button type="button" disabled aria-label={`maximize ${title}`}>
-        <ControlIcon d="M1.6 1.6h6.8v6.8h-6.8z" />
+      <button
+        type="button"
+        aria-label={`${maximized ? 'restore' : 'maximize'} ${title}`}
+        onClick={onMaximize}
+      >
+        <ControlIcon
+          d={
+            maximized
+              ? 'M3 1.6h5.4v5.4h-5.4zM1.6 3.4h5.4v5.4h-5.4z'
+              : 'M1.6 1.6h6.8v6.8h-6.8z'
+          }
+        />
       </button>
       <button
         type="button"
@@ -70,6 +93,7 @@ export const Window = memo(function Window({ id, children }: WindowProps) {
   const frame = useCanvasStore((state) => state.windows[id])
   const focused = useCanvasStore((state) => state.focusedId === id)
   const overview = useCanvasStore((state) => state.isOverviewMode)
+  const maximized = useCanvasStore((state) => Boolean(state.maximized[id]))
   const [dragging, setDragging] = useState(false)
 
   if (!frame) return null
@@ -216,8 +240,12 @@ export const Window = memo(function Window({ id, children }: WindowProps) {
           </span>
           <WindowControls
             title={frame.title}
+            canMinimize={closable}
             canClose={closable}
+            maximized={maximized}
             className={paper ? 'col-start-3' : ''}
+            onMinimize={() => useCanvasStore.getState().minimize(id)}
+            onMaximize={() => useCanvasStore.getState().maximize(id)}
             onClose={() => useCanvasStore.getState().close(id)}
           />
         </header>

@@ -78,7 +78,7 @@ export function MouseTrail() {
 
     function onCanvas(x: number, y: number) {
       const hit = document.elementFromPoint(x, y)
-      return !(hit instanceof Element && hit.closest('.window-frame'))
+      return !(hit instanceof Element && hit.closest('.window-frame, .taskbar'))
     }
 
     function onMove(event: PointerEvent) {

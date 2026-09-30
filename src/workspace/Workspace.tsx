@@ -60,8 +60,10 @@ const GridLines = memo(function GridLines() {
 const GridSpots = memo(function GridSpots() {
   const windows = useCanvasStore((state) => state.windows)
   const order = useCanvasStore((state) => state.order)
+  const minimized = useCanvasStore((state) => state.minimized)
 
   return order.map((id) => {
+    if (minimized.includes(id)) return null
     const frame = windows[id]
     if (!frame) return null
     const radius =
@@ -115,6 +117,25 @@ const GridSpots = memo(function GridSpots() {
   })
 })
 
+function Taskbar() {
+  const minimized = useCanvasStore(useShallow((state) => state.minimized))
+  const windows = useCanvasStore((state) => state.windows)
+
+  return (
+    <div className="taskbar" aria-label="taskbar">
+      {minimized.map((id) => (
+        <button
+          key={id}
+          type="button"
+          onClick={() => useCanvasStore.getState().focusOnWindow(id)}
+        >
+          {windows[id]?.title ?? id}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 function CanvasWorld({ children }: { children: ReactNode }) {
   const camera = useCanvasStore((state) => state.camera)
 
@@ -140,6 +161,7 @@ export function Workspace({ username }: WorkspaceProps) {
   useWindowPhysics()
 
   const openIds = useCanvasStore(useShallow((state) => state.order))
+  const minimized = useCanvasStore(useShallow((state) => state.minimized))
   const overview = useCanvasStore((state) => state.isOverviewMode)
 
   useEffect(() => {
@@ -164,10 +186,11 @@ export function Workspace({ username }: WorkspaceProps) {
       aria-label={overview ? 'window overview' : 'workspace'}
     >
       <span className="sr-only">signed in as {username}</span>
+      <Taskbar />
       <CanvasWorld>
         <GridLines />
         <GridSpots />
-        {openIds.map((id) => (
+        {openIds.filter((id) => !minimized.includes(id)).map((id) => (
           <Window key={id} id={id}>
             <WindowBody id={id} username={username} />
           </Window>

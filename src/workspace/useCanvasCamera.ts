@@ -23,7 +23,10 @@ export function useCanvasCamera(containerRef: RefObject<HTMLElement | null>) {
     let clickToOverview = false
 
     function isOnWindow(target: EventTarget | null) {
-      return target instanceof Element && Boolean(target.closest('.window-frame'))
+      return (
+        target instanceof Element &&
+        Boolean(target.closest('.window-frame, .taskbar'))
+      )
     }
 
     function isPanModifier(event: PointerEvent) {
