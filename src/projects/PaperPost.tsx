@@ -85,7 +85,7 @@ export function FullPost({
   )
 
   return (
-    <article className="col-span-2 border-b border-[#6e655c] pb-6 transition-opacity hover:opacity-80">
+    <article className="col-span-2 border-b border-rule pb-6 transition-opacity hover:opacity-80">
       {figure ? (
         <div className="grid grid-cols-2 gap-4">
           {image === 'left' ? <AsciiFigure src={figure} /> : copy}
@@ -121,7 +121,7 @@ export function HalfPost({
   const pic = figure ? <AsciiFigure src={figure} /> : null
 
   return (
-    <article className="border-b border-[#6e655c] pb-6 transition-opacity hover:opacity-80">
+    <article className="border-b border-rule pb-6 transition-opacity hover:opacity-80">
       <div className="flex flex-col gap-2">
         {image === 'over' ? pic : null}
         {copy}
@@ -147,7 +147,7 @@ export function SidePost({
   return (
     <button
       type="button"
-      className="flex w-full cursor-pointer flex-col gap-4 border-x-0 border-t-0 border-b border-[#6e655c] bg-transparent p-0 pb-6 text-left text-[#d5cec2] transition-opacity hover:opacity-80"
+      className="flex w-full cursor-pointer flex-col gap-4 border-x-0 border-t-0 border-b border-rule bg-transparent p-0 pb-6 text-left text-ink transition-opacity hover:opacity-80"
       onClick={() => useCanvasStore.getState().open(to)}
     >
       {figure ? <AsciiFigure src={figure} className="w-full leading-[1.5]" /> : null}
@@ -183,7 +183,7 @@ function pad2(n: number) {
   return String(n).padStart(2, '0')
 }
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
 
 export function ClockPost() {
   const [now, setNow] = useState(() => new Date())
@@ -194,12 +194,12 @@ export function ClockPost() {
   }, [])
 
   const time = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`
-  const weekday = now.toLocaleDateString('en-GB', { weekday: 'short' })
+  const weekday = now.toLocaleDateString('en-GB', { weekday: 'short' }).toLowerCase()
   const date = `${weekday} ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`
 
   return (
     <article
-      className="flex w-full flex-col items-center gap-5 border-b border-[#6e655c] pt-6 pb-8 text-center font-['Courier_New',Courier,monospace] text-[1.15em] font-bold transition-opacity hover:opacity-80"
+      className="flex w-full flex-col items-center gap-5 border-b border-rule pt-6 pb-8 text-center font-['Courier_New',Courier,monospace] text-[1.15em] font-bold transition-opacity hover:opacity-80"
       aria-label={`${time} ${date}`}
     >
       <pre className="m-0 font-[inherit] leading-[1.2]">{asciiText(time)}</pre>
@@ -244,8 +244,8 @@ export function CatPost() {
   return (
     <button
       type="button"
-      className="w-full cursor-pointer border-x-0 border-t-0 border-b border-[#6e655c] bg-transparent p-0 pt-8 pb-12 text-[#d5cec2] transition-opacity hover:opacity-80"
-      aria-label={awake ? 'Cat is awake' : 'Sleeping cat'}
+      className="w-full cursor-pointer border-x-0 border-t-0 border-b border-rule bg-transparent p-0 pt-8 pb-12 text-ink transition-opacity hover:opacity-80"
+      aria-label={awake ? 'cat is awake' : 'sleeping cat'}
       onClick={() => {
         setAwake(true)
         setPoke((n) => n + 1)
