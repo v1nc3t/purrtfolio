@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import {
-  cameraFittingRects,
+  cameraFittingWorld,
   cameraFocusingWindow,
+  cameraForRect,
   clampCamera,
   minScaleForViewport,
   panCamera as shiftCamera,
@@ -30,18 +31,25 @@ export type WindowFrame = {
   zIndex: number
 }
 
+export const TASKBAR_HEIGHT = 32
+
+type SavedFrame = Pick<WindowFrame, 'x' | 'y' | 'width' | 'height'>
+
 type CanvasStore = {
   windows: Partial<Record<WindowId, WindowFrame>>
   order: WindowId[]
+  minimized: WindowId[]
+  maximized: Partial<Record<WindowId, SavedFrame>>
   focusedId: WindowId | null
   isOverviewMode: boolean
   camera: Camera
-  cameraAnimating: boolean
   cameraLocked: boolean
   cameraBeforeOverview: Camera | null
   viewport: Viewport
   open: (id: WindowId) => void
   close: (id: WindowId) => void
+  minimize: (id: WindowId) => void
+  maximize: (id: WindowId) => void
   focus: (id: WindowId) => void
   focusOnWindow: (id: WindowId) => void
   focusDirection: (direction: Direction) => void
@@ -115,6 +123,29 @@ function boundCamera(camera: Camera, viewport: Viewport) {
   return clampCamera(camera, viewport)
 }
 
+function fillCamera(frame: WindowFrame, viewport: Viewport) {
+  const fitted = cameraForRect(frame, viewport, 0)
+  return boundCamera({ ...fitted, y: fitted.y + TASKBAR_HEIGHT / 2 }, viewport)
+}
+
+function frameCamera(frame: WindowFrame, viewport: Viewport, maximized: boolean) {
+  return maximized
+    ? fillCamera(frame, viewport)
+    : boundCamera(cameraFocusingWindow(frame, viewport), viewport)
+}
+
+function maximizedFrame(frame: WindowFrame, viewport: Viewport): WindowFrame {
+  const width = viewport.width
+  const height = Math.max(1, viewport.height - TASKBAR_HEIGHT)
+  return clampFrame({
+    ...frame,
+    width,
+    height,
+    x: frame.x + frame.width / 2 - width / 2,
+    y: frame.y + frame.height / 2 - height / 2,
+  })
+}
+
 function camerasDiffer(a: Camera, b: Camera) {
   return (
     Math.abs(a.x - b.x) > 0.05 ||
@@ -128,22 +159,49 @@ function lockedFocusCamera(
   focusedId: WindowId | null,
   viewport: Viewport,
   camera: Camera,
+  maximized: Partial<Record<WindowId, SavedFrame>>,
 ) {
   if (!focusedId) return camera
   const frame = windows[focusedId]
   if (!frame) return camera
-  const next = boundCamera(cameraFocusingWindow(frame, viewport), viewport)
+  const next = frameCamera(frame, viewport, Boolean(maximized[focusedId]))
   return camerasDiffer(next, camera) ? next : camera
 }
 
-let animateTimer = 0
+const FOCUS_MS = 180
+const OVERVIEW_MS = 200
+let glideRaf = 0
 
-function startCameraAnimation() {
-  if (typeof window === 'undefined') return
-  window.clearTimeout(animateTimer)
-  animateTimer = window.setTimeout(() => {
-    useCanvasStore.setState({ cameraAnimating: false })
-  }, 420)
+function cancelGlide() {
+  if (typeof cancelAnimationFrame === 'undefined') return
+  cancelAnimationFrame(glideRaf)
+  glideRaf = 0
+}
+
+function glideCamera(to: Camera, ms: number) {
+  cancelGlide()
+  const from = useCanvasStore.getState().camera
+  const reduce =
+    typeof matchMedia !== 'undefined' &&
+    matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduce || !camerasDiffer(from, to) || typeof requestAnimationFrame === 'undefined') {
+    useCanvasStore.setState({ camera: to })
+    return
+  }
+  const start = performance.now()
+  const step = (now: number) => {
+    const t = Math.min(1, (now - start) / ms)
+    const e = 1 - (1 - t) ** 3
+    useCanvasStore.setState({
+      camera: {
+        x: from.x + (to.x - from.x) * e,
+        y: from.y + (to.y - from.y) * e,
+        scale: from.scale + (to.scale - from.scale) * e,
+      },
+    })
+    glideRaf = t < 1 ? requestAnimationFrame(step) : 0
+  }
+  glideRaf = requestAnimationFrame(step)
 }
 
 function createInitialState() {
@@ -162,10 +220,11 @@ function createInitialState() {
   return {
     viewport,
     order: ['terminal'] as WindowId[],
+    minimized: [] as WindowId[],
+    maximized: {} as Partial<Record<WindowId, SavedFrame>>,
     focusedId: 'terminal' as WindowId,
     isOverviewMode: false,
     camera: boundCamera(cameraFocusingWindow(terminal, viewport), viewport),
-    cameraAnimating: false,
     cameraLocked: true,
     cameraBeforeOverview: null as Camera | null,
     windows: { terminal } as Partial<Record<WindowId, WindowFrame>>,
@@ -193,33 +252,33 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   close: (id) => {
     if (id === 'terminal') return
 
-    const { windows, order, focusedId, viewport, isOverviewMode } = get()
+    const { windows, order, focusedId, viewport, isOverviewMode, minimized, maximized } = get()
     if (!windows[id]) return
 
     const nextOrder = order.filter((item) => item !== id)
     const nextWindows = { ...windows }
     delete nextWindows[id]
+    const nextMinimized = minimized.filter((item) => item !== id)
+    const nextMaximized = { ...maximized }
+    delete nextMaximized[id]
 
     let nextFocus = focusedId
     if (focusedId === id) {
-      const index = order.indexOf(id)
-      nextFocus = nextOrder[Math.max(0, index - 1)] ?? nextOrder[0] ?? null
+      nextFocus = nextOrder.find((item) => !nextMinimized.includes(item)) ?? null
     }
 
     const nextOverview = isOverviewMode && nextOrder.length > 1
     set({
       order: nextOrder,
       windows: nextWindows,
+      minimized: nextMinimized,
+      maximized: nextMaximized,
       focusedId: nextFocus,
       isOverviewMode: nextOverview,
     })
 
     if (nextOverview) {
-      set({
-        camera: boundCamera(cameraFittingRects(framesOf(nextWindows), viewport), viewport),
-        cameraAnimating: true,
-      })
-      startCameraAnimation()
+      glideCamera(boundCamera(cameraFittingWorld(viewport), viewport), OVERVIEW_MS)
       return
     }
 
@@ -244,44 +303,100 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     })
   },
 
+  minimize: (id) => {
+    if (id === 'terminal') return
+    const { windows, minimized, maximized, focusedId, order } = get()
+    const frame = windows[id]
+    if (!frame || minimized.includes(id)) return
+
+    const prev = maximized[id]
+    const nextMaximized = { ...maximized }
+    delete nextMaximized[id]
+    const nextMinimized = [...minimized, id]
+    const visible = order.filter((item) => !nextMinimized.includes(item))
+    set({
+      windows: {
+        ...windows,
+        [id]: prev ? { ...frame, ...prev } : frame,
+      },
+      maximized: nextMaximized,
+      minimized: nextMinimized,
+      focusedId: focusedId === id ? (visible[0] ?? null) : focusedId,
+    })
+    const nextFocus = get().focusedId
+    if (focusedId === id && nextFocus) get().focusOnWindow(nextFocus)
+    else if (!nextFocus) set({ cameraLocked: false })
+  },
+
+  maximize: (id) => {
+    const { windows, viewport, maximized, minimized } = get()
+    const frame = windows[id]
+    if (!frame) return
+
+    const nextMinimized = minimized.filter((item) => item !== id)
+    if (maximized[id]) {
+      const nextMaximized = { ...maximized }
+      delete nextMaximized[id]
+      set({
+        windows: { ...windows, [id]: { ...frame, ...maximized[id] } },
+        maximized: nextMaximized,
+        minimized: nextMinimized,
+      })
+      get().focusOnWindow(id)
+      return
+    }
+
+    set({
+      windows: { ...windows, [id]: maximizedFrame(frame, viewport) },
+      maximized: {
+        ...maximized,
+        [id]: { x: frame.x, y: frame.y, width: frame.width, height: frame.height },
+      },
+      minimized: nextMinimized,
+    })
+    get().focusOnWindow(id)
+  },
+
   focusOnWindow: (id) => {
-    const { windows, viewport, focusedId } = get()
+    const { windows, viewport, focusedId, minimized, maximized } = get()
     const frame = windows[id]
     if (!frame) return
 
     const zIndex = focusedId === id ? frame.zIndex : nextZ(windows)
+    const camera = frameCamera(frame, viewport, Boolean(maximized[id]))
     set({
       focusedId: id,
       isOverviewMode: false,
       cameraLocked: true,
       cameraBeforeOverview: null,
-      camera: boundCamera(cameraFocusingWindow(frame, viewport), viewport),
-      cameraAnimating: true,
+      minimized: minimized.filter((item) => item !== id),
       windows: {
         ...windows,
         [id]: { ...frame, zIndex },
       },
     })
-    startCameraAnimation()
+    glideCamera(camera, FOCUS_MS)
   },
 
   focusDirection: (direction) => {
-    const { windows, focusedId } = get()
+    const { windows, focusedId, minimized } = get()
     if (!focusedId) return
-    const nextId = pickWindowInDirection(framesOf(windows), focusedId, direction)
+    const frames = framesOf(windows).filter((frame) => !minimized.includes(frame.id))
+    const nextId = pickWindowInDirection(frames, focusedId, direction)
     if (nextId) get().focusOnWindow(nextId as WindowId)
   },
 
   panCamera: (deltaX, deltaY) => {
+    cancelGlide()
     const { camera, viewport } = get()
     set({
       camera: boundCamera(shiftCamera(camera, deltaX, deltaY), viewport),
-      cameraAnimating: false,
       cameraLocked: false,
     })
   },
 
   zoomCamera: (zoomDelta, focusPointX, focusPointY) => {
+    cancelGlide()
     const { camera, viewport } = get()
     set({
       camera: boundCamera(
@@ -294,22 +409,19 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
         ),
         viewport,
       ),
-      cameraAnimating: false,
       cameraLocked: false,
     })
   },
 
   enterOverview: () => {
-    const { isOverviewMode, windows, viewport, camera } = get()
+    const { isOverviewMode, viewport, camera } = get()
     if (isOverviewMode) return
     set({
       isOverviewMode: true,
       cameraLocked: false,
       cameraBeforeOverview: camera,
-      camera: boundCamera(cameraFittingRects(framesOf(windows), viewport), viewport),
-      cameraAnimating: true,
     })
-    startCameraAnimation()
+    glideCamera(boundCamera(cameraFittingWorld(viewport), viewport), OVERVIEW_MS)
   },
 
   toggleOverview: () => {
@@ -329,37 +441,48 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     const { isOverviewMode, cameraBeforeOverview, viewport } = get()
     if (!isOverviewMode) return
 
+    const camera = boundCamera(cameraBeforeOverview ?? get().camera, viewport)
     set({
       isOverviewMode: false,
       cameraLocked: false,
-      camera: boundCamera(cameraBeforeOverview ?? get().camera, viewport),
       cameraBeforeOverview: null,
-      cameraAnimating: true,
     })
-    startCameraAnimation()
+    glideCamera(camera, OVERVIEW_MS)
   },
 
   unlockCamera: () => {
-    set({ cameraLocked: false, cameraAnimating: false })
+    cancelGlide()
+    set({ cameraLocked: false })
   },
 
   fitOverview: () => {
-    const { isOverviewMode, windows, viewport } = get()
+    const { isOverviewMode, viewport } = get()
     if (!isOverviewMode) return
-    set({
-      camera: boundCamera(cameraFittingRects(framesOf(windows), viewport), viewport),
-      cameraAnimating: true,
-    })
-    startCameraAnimation()
+    glideCamera(boundCamera(cameraFittingWorld(viewport), viewport), OVERVIEW_MS)
   },
 
   setViewport: (viewport) => {
-    const { windows, focusedId, isOverviewMode, camera, cameraLocked } = get()
+    cancelGlide()
+    const { windows, focusedId, isOverviewMode, camera, cameraLocked, maximized } = get()
     const size = windowSizeFor(viewport)
     const nextWindows: Partial<Record<WindowId, WindowFrame>> = {}
+    const nextMaximized: Partial<Record<WindowId, SavedFrame>> = {}
     for (const id of Object.keys(windows) as WindowId[]) {
       const frame = windows[id]
       if (!frame) continue
+      const saved = maximized[id]
+      if (saved) {
+        const scx = saved.x + saved.width / 2
+        const scy = saved.y + saved.height / 2
+        nextMaximized[id] = {
+          x: scx - size.width / 2,
+          y: scy - size.height / 2,
+          width: size.width,
+          height: size.height,
+        }
+        nextWindows[id] = maximizedFrame(frame, viewport)
+        continue
+      }
       const cx = frame.x + frame.width / 2
       const cy = frame.y + frame.height / 2
       nextWindows[id] = clampFrame({
@@ -372,12 +495,12 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     }
 
     const nextCamera = isOverviewMode
-      ? boundCamera(cameraFittingRects(framesOf(nextWindows), viewport), viewport)
+      ? boundCamera(cameraFittingWorld(viewport), viewport)
       : cameraLocked && focusedId && nextWindows[focusedId]
-        ? boundCamera(cameraFocusingWindow(nextWindows[focusedId], viewport), viewport)
+        ? frameCamera(nextWindows[focusedId], viewport, Boolean(nextMaximized[focusedId]))
         : boundCamera(camera, viewport)
 
-    set({ viewport, windows: nextWindows, camera: nextCamera })
+    set({ viewport, windows: nextWindows, maximized: nextMaximized, camera: nextCamera })
   },
 
   setWindowPosition: (id, x, y) => {
@@ -400,10 +523,13 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
         const pos = positions[id]
         const frame = windows[id]
         if (!pos || !frame) continue
-        if (frame.x === pos.x && frame.y === pos.y) continue
+        // ponytail: drop sub-pixel drift, the overview orbit is too slow to see it
+        if (Math.abs(frame.x - pos.x) < 1 && Math.abs(frame.y - pos.y) < 1) continue
         windows[id] = clampFrame({ ...frame, x: pos.x, y: pos.y })
         changed = true
       }
+
+      if (glideRaf) return changed ? { windows } : state
 
       const camera = boundCamera(
         state.cameraLocked && !state.isOverviewMode
@@ -412,6 +538,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
               state.focusedId,
               state.viewport,
               state.camera,
+              state.maximized,
             )
           : state.camera,
         state.viewport,

@@ -44,9 +44,9 @@ export function runCommand(raw: string, username: string): CommandResult {
   if (!trimmed) return { output: [] }
 
   const [cmd, ...args] = trimmed.split(/\s+/)
-  const handler = handlers[cmd]
+  const handler = handlers[cmd.toLowerCase()]
 
-  if (!handler) return { output: [`${cmd}: command not found`] }
+  if (!handler) return { output: [`${cmd}: command not found`, 'try: help'] }
 
   return handler({ username, args })
 }

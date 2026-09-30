@@ -28,15 +28,18 @@ function clampCaret(position: number, length: number) {
   return Math.min(Math.max(position, 0), length)
 }
 
-function promptText(username: string) {
-  return `${username}@purrtfolio:~$ `
+function Prompt({ username }: { username: string }) {
+  return (
+    <span className="shrink-0">
+      <span className="text-terminal-fg">{username}</span>
+      <span className="text-terminal-muted">@purrtfolio:~$ </span>
+    </span>
+  )
 }
 
 export const Terminal = memo(function Terminal({ username }: TerminalProps) {
   const inputRef = useRef<HTMLInputElement>(null)
   const logRef = useRef<HTMLDivElement>(null)
-  const prompt = promptText(username)
-
   const [value, setValue] = useState('')
   const [caret, setCaret] = useState(0)
   const [lines, setLines] = useState<LogLine[]>([])
@@ -161,23 +164,23 @@ export const Terminal = memo(function Terminal({ username }: TerminalProps) {
     <form className="flex h-full flex-col" onSubmit={handleSubmit}>
       <div
         ref={logRef}
-        className="scrollbar-line min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-3 py-2 text-[clamp(1.05rem,1.8cqi,1.35rem)] leading-none"
+        className="scrollbar-line min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-3 text-[clamp(0.875rem,1.35cqi,1rem)] leading-none"
         onClick={handleLogClick}
       >
         {lines.map((line, index) =>
           line.kind === 'input' ? (
             <div key={index} className={lineClass}>
-              <span className="text-terminal-muted">{prompt}</span>
+              <Prompt username={username} />
               <span>{line.text}</span>
             </div>
           ) : (
-            <div key={index} className={lineClass}>
+            <div key={index} className={`${lineClass} text-white/75`}>
               {line.text}
             </div>
           ),
         )}
         <div className={`relative ${lineClass}`}>
-          <span className="shrink-0 text-terminal-muted">{prompt}</span>
+          <Prompt username={username} />
           <div className="relative min-w-[1ch] flex-1">
             <input
               ref={inputRef}

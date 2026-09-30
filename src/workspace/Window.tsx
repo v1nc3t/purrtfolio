@@ -1,4 +1,4 @@
-import { useState, type PointerEvent, type ReactNode } from 'react'
+import { memo, useState, type PointerEvent, type ReactNode } from 'react'
 import { pointerToWorld } from './camera'
 import { panGesture } from './panGesture'
 import { useCanvasStore, type WindowId } from './useCanvasStore'
@@ -9,53 +9,71 @@ type WindowProps = {
   children: ReactNode
 }
 
-const FLOAT_DELAY: Record<WindowId, string> = {
-  terminal: '0s',
-  about: '-1.2s',
-  projects: '-2.4s',
-  photos: '-3.6s',
-}
-
 const DRAG_THRESHOLD = 5
 
-function PaperBanner({
+function ControlIcon({ d }: { d: string }) {
+  return (
+    <svg viewBox="0 0 10 10" aria-hidden>
+      <path d={d} />
+    </svg>
+  )
+}
+
+function WindowControls({
   title,
-  focused,
-  closable,
+  canMinimize,
+  canClose,
+  maximized,
+  onMinimize,
+  onMaximize,
   onClose,
-  onPointerDown,
+  className = '',
 }: {
   title: string
-  focused: boolean
-  closable: boolean
+  canMinimize: boolean
+  canClose: boolean
+  maximized: boolean
+  onMinimize: () => void
+  onMaximize: () => void
   onClose: () => void
-  onPointerDown: (event: PointerEvent<HTMLElement>) => void
+  className?: string
 }) {
   return (
-    <header
-      className={`window-header window-header-paper flex shrink-0 cursor-grab touch-none select-none items-center py-1 font-mono leading-none active:cursor-grabbing ${
-        focused ? 'text-[#d5cec2]' : 'text-[#6e655c] opacity-75'
-      }`}
-      onPointerDown={onPointerDown}
+    <div
+      className={`window-controls ${className}`}
+      onPointerDown={(event) => event.stopPropagation()}
     >
-      {closable ? (
-        <span className="invisible shrink-0 pr-1 pl-3" aria-hidden>
-          [x]
-        </span>
-      ) : null}
-      <span className="min-w-0 flex-1 truncate px-2 text-center">{title}</span>
-      {closable ? (
-        <button
-          type="button"
-          aria-label={`Close ${title}`}
-          className="shrink-0 cursor-pointer pr-3 pl-1 leading-none [&:hover]:text-red-500"
-          onPointerDown={(event) => event.stopPropagation()}
-          onClick={onClose}
-        >
-          [x]
-        </button>
-      ) : null}
-    </header>
+      <button
+        type="button"
+        aria-label={`minimize ${title}`}
+        disabled={!canMinimize}
+        onClick={onMinimize}
+      >
+        <ControlIcon d="M1 7.5h8" />
+      </button>
+      <button
+        type="button"
+        aria-label={`${maximized ? 'restore' : 'maximize'} ${title}`}
+        onClick={onMaximize}
+      >
+        <ControlIcon
+          d={
+            maximized
+              ? 'M3 1.6h5.4v5.4h-5.4zM1.6 3.4h5.4v5.4h-5.4z'
+              : 'M1.6 1.6h6.8v6.8h-6.8z'
+          }
+        />
+      </button>
+      <button
+        type="button"
+        className="window-control-close"
+        disabled={!canClose}
+        aria-label={`close ${title}`}
+        onClick={onClose}
+      >
+        <ControlIcon d="M2 2l6 6M8 2L2 8" />
+      </button>
+    </div>
   )
 }
 
@@ -71,10 +89,11 @@ function workspaceOf(target: EventTarget | null) {
   return main instanceof HTMLElement ? main : null
 }
 
-export function Window({ id, children }: WindowProps) {
+export const Window = memo(function Window({ id, children }: WindowProps) {
   const frame = useCanvasStore((state) => state.windows[id])
   const focused = useCanvasStore((state) => state.focusedId === id)
   const overview = useCanvasStore((state) => state.isOverviewMode)
+  const maximized = useCanvasStore((state) => Boolean(state.maximized[id]))
   const [dragging, setDragging] = useState(false)
 
   if (!frame) return null
@@ -200,45 +219,36 @@ export function Window({ id, children }: WindowProps) {
       } ${dragging ? 'cursor-grabbing' : ''}`}
     >
       <div
-        className={`window-shell animate-window-float flex h-full flex-col motion-reduce:animate-none ${
+        className={`window-shell flex h-full flex-col ${
           paper ? 'window-shell-paper' : 'bg-terminal-bg'
         }`}
-        style={{
-          animationDelay: FLOAT_DELAY[id],
-          animationPlayState: dragging ? 'paused' : 'running',
-        }}
       >
-        {paper ? (
-          <PaperBanner
-            title={frame.title}
-            focused={focused}
-            closable={closable}
-            onClose={() => useCanvasStore.getState().close(id)}
-            onPointerDown={handleHeaderDown}
-          />
-        ) : (
-          <header
-            className={`window-header flex shrink-0 cursor-grab touch-none select-none items-center py-1.5 text-sm active:cursor-grabbing ${
-              focused
-                ? 'bg-terminal-accent/10 text-terminal-accent'
-                : 'text-terminal-muted opacity-75'
+        <header
+          className={`window-header shrink-0 cursor-grab touch-none select-none active:cursor-grabbing ${
+            paper
+              ? 'window-header-paper grid grid-cols-[1fr_auto_1fr] items-center py-1 font-mono leading-none'
+              : 'flex items-center py-1.5'
+          }`}
+          onPointerDown={handleHeaderDown}
+        >
+          <span
+            className={`min-w-0 truncate ${
+              paper ? 'col-start-2 px-2 text-center' : 'flex-1 px-4'
             }`}
-            onPointerDown={handleHeaderDown}
           >
-            <span className="min-w-0 flex-1 truncate px-3">{frame.title}</span>
-            {closable ? (
-              <button
-                type="button"
-                aria-label={`Close ${frame.title}`}
-                className="cursor-pointer py-0.5 pr-3 pl-2 text-lg leading-none text-terminal-muted [&:hover]:text-red-500"
-                onPointerDown={(event) => event.stopPropagation()}
-                onClick={() => useCanvasStore.getState().close(id)}
-              >
-                ×
-              </button>
-            ) : null}
-          </header>
-        )}
+            {frame.title}
+          </span>
+          <WindowControls
+            title={frame.title}
+            canMinimize={closable}
+            canClose={closable}
+            maximized={maximized}
+            className={paper ? 'col-start-3' : ''}
+            onMinimize={() => useCanvasStore.getState().minimize(id)}
+            onMaximize={() => useCanvasStore.getState().maximize(id)}
+            onClose={() => useCanvasStore.getState().close(id)}
+          />
+        </header>
         <div
           className={`min-h-0 flex-1 ${focused ? '' : 'opacity-75'} ${
             overview ? 'pointer-events-none' : ''
@@ -249,4 +259,4 @@ export function Window({ id, children }: WindowProps) {
       </div>
     </section>
   )
-}
+})

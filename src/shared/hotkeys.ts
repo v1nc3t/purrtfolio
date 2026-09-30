@@ -43,11 +43,11 @@ export const WINDOW_HOTKEYS: HotkeyMap = {
 }
 
 export const SHORTCUT_HELP = [
-  'close      Alt+Q',
-  'overview   Alt+O',
-  'focus      Alt+Arrows',
-  'pan        drag / Alt+drag',
-  'zoom       Alt+wheel',
+  'close      alt+q',
+  'overview   alt+o',
+  'focus      alt+arrows',
+  'pan        drag / alt+drag',
+  'zoom       alt+wheel',
 ] as const
 
 function isTypingTarget(target: EventTarget | null) {

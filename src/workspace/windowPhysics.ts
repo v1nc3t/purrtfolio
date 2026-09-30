@@ -14,7 +14,7 @@ export const PHYSICS = {
   velocityDecay: 0.52,
   dragAlphaTarget: 0.28,
   overviewAlphaTarget: 0.14,
-  driftPeriod: 220,
+  driftPeriod: 1100,
   lockOnDrop: false,
 } as const
 
