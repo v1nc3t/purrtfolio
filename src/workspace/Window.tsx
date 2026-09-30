@@ -11,40 +11,46 @@ type WindowProps = {
 
 const DRAG_THRESHOLD = 5
 
-function PaperBanner({
+function ControlIcon({ d }: { d: string }) {
+  return (
+    <svg viewBox="0 0 10 10" aria-hidden>
+      <path d={d} />
+    </svg>
+  )
+}
+
+function WindowControls({
   title,
-  closable,
+  canClose,
   onClose,
-  onPointerDown,
+  className = '',
 }: {
   title: string
-  closable: boolean
+  canClose: boolean
   onClose: () => void
-  onPointerDown: (event: PointerEvent<HTMLElement>) => void
+  className?: string
 }) {
   return (
-    <header
-      className="window-header window-header-paper flex shrink-0 cursor-grab touch-none select-none items-center py-1 font-mono leading-none active:cursor-grabbing"
-      onPointerDown={onPointerDown}
+    <div
+      className={`window-controls ${className}`}
+      onPointerDown={(event) => event.stopPropagation()}
     >
-      {closable ? (
-        <span className="invisible shrink-0 pr-1 pl-3" aria-hidden>
-          [x]
-        </span>
-      ) : null}
-      <span className="min-w-0 flex-1 truncate px-2 text-center">{title}</span>
-      {closable ? (
-        <button
-          type="button"
-          aria-label={`Close ${title}`}
-          className="shrink-0 cursor-pointer pr-3 pl-1 leading-none normal-case tracking-normal [&:hover]:text-red-800"
-          onPointerDown={(event) => event.stopPropagation()}
-          onClick={onClose}
-        >
-          [x]
-        </button>
-      ) : null}
-    </header>
+      <button type="button" disabled aria-label={`minimize ${title}`}>
+        <ControlIcon d="M1 7.5h8" />
+      </button>
+      <button type="button" disabled aria-label={`maximize ${title}`}>
+        <ControlIcon d="M1.6 1.6h6.8v6.8h-6.8z" />
+      </button>
+      <button
+        type="button"
+        className="window-control-close"
+        disabled={!canClose}
+        aria-label={`close ${title}`}
+        onClick={onClose}
+      >
+        <ControlIcon d="M2 2l6 6M8 2L2 8" />
+      </button>
+    </div>
   )
 }
 
@@ -193,32 +199,28 @@ export function Window({ id, children }: WindowProps) {
           paper ? 'window-shell-paper' : 'bg-terminal-bg'
         }`}
       >
-        {paper ? (
-          <PaperBanner
-            title={frame.title}
-            closable={closable}
-            onClose={() => useCanvasStore.getState().close(id)}
-            onPointerDown={handleHeaderDown}
-          />
-        ) : (
-          <header
-            className="window-header flex shrink-0 cursor-grab touch-none select-none items-center py-1.5 active:cursor-grabbing"
-            onPointerDown={handleHeaderDown}
+        <header
+          className={`window-header shrink-0 cursor-grab touch-none select-none active:cursor-grabbing ${
+            paper
+              ? 'window-header-paper grid grid-cols-[1fr_auto_1fr] items-center py-1 font-mono leading-none'
+              : 'flex items-center py-1.5'
+          }`}
+          onPointerDown={handleHeaderDown}
+        >
+          <span
+            className={`min-w-0 truncate ${
+              paper ? 'col-start-2 px-2 text-center' : 'flex-1 px-4'
+            }`}
           >
-            <span className="min-w-0 flex-1 truncate px-4">{frame.title}</span>
-            {closable ? (
-              <button
-                type="button"
-                aria-label={`Close ${frame.title}`}
-                className="cursor-pointer py-0.5 pr-4 pl-2 text-sm leading-none tracking-normal normal-case opacity-60 hover:opacity-100"
-                onPointerDown={(event) => event.stopPropagation()}
-                onClick={() => useCanvasStore.getState().close(id)}
-              >
-                ×
-              </button>
-            ) : null}
-          </header>
-        )}
+            {frame.title}
+          </span>
+          <WindowControls
+            title={frame.title}
+            canClose={closable}
+            className={paper ? 'col-start-3' : ''}
+            onClose={() => useCanvasStore.getState().close(id)}
+          />
+        </header>
         <div
           className={`min-h-0 flex-1 ${focused ? '' : 'opacity-75'} ${
             overview ? 'pointer-events-none' : ''
