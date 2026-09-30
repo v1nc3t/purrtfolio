@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, type ReactNode } from 'react'
+import { memo, useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { ProjectsPage } from '../projects/ProjectsPage'
 import { Terminal } from '../terminal/Terminal'
@@ -30,9 +30,8 @@ const WindowBody = memo(function WindowBody({
   }
 })
 
-function GridLines() {
+const GridLines = memo(function GridLines() {
   const viewport = useCanvasStore((state) => state.viewport)
-  const scale = useCanvasStore((state) => state.camera.scale)
   const world = worldRect(windowSizeFor(viewport))
 
   return (
@@ -50,19 +49,17 @@ function GridLines() {
           x={-world.x}
           y={-world.y}
         >
-          <path d="M48 0 H0 V48" fill="none" stroke="white" strokeWidth={0.9 / scale} />
+          <path className="canvas-grid-line" d="M48 0 H0 V48" />
         </pattern>
       </defs>
       <rect width="100%" height="100%" fill="url(#canvas-grid)" opacity="0.12" />
     </svg>
   )
-}
+})
 
-function GridSpots() {
+const GridSpots = memo(function GridSpots() {
   const windows = useCanvasStore((state) => state.windows)
   const order = useCanvasStore((state) => state.order)
-  const scale = useCanvasStore((state) => state.camera.scale)
-  const stroke = 0.9 / scale
 
   return order.map((id) => {
     const frame = windows[id]
@@ -89,7 +86,7 @@ function GridSpots() {
             x={-left}
             y={-top}
           >
-            <path d="M48 0 H0 V48" fill="none" stroke="white" strokeWidth={stroke} />
+            <path className="canvas-grid-line" d="M48 0 H0 V48" />
           </pattern>
           <radialGradient
             id={`canvas-flash-${id}`}
@@ -116,7 +113,7 @@ function GridSpots() {
       </svg>
     )
   })
-}
+})
 
 function CanvasWorld({ children }: { children: ReactNode }) {
   const camera = useCanvasStore((state) => state.camera)
@@ -124,9 +121,12 @@ function CanvasWorld({ children }: { children: ReactNode }) {
   return (
     <div
       className="absolute top-0 left-0 origin-top-left"
-      style={{
-        transform: `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`,
-      }}
+      style={
+        {
+          transform: `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`,
+          '--cam-scale': camera.scale,
+        } as CSSProperties
+      }
     >
       {children}
     </div>

@@ -136,7 +136,7 @@ function lockedFocusCamera(
 }
 
 const FOCUS_MS = 180
-const OVERVIEW_MS = 420
+const OVERVIEW_MS = 200
 let glideRaf = 0
 
 function cancelGlide() {
@@ -414,7 +414,8 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
         const pos = positions[id]
         const frame = windows[id]
         if (!pos || !frame) continue
-        if (frame.x === pos.x && frame.y === pos.y) continue
+        // ponytail: drop sub-pixel drift, the overview orbit is too slow to see it
+        if (Math.abs(frame.x - pos.x) < 1 && Math.abs(frame.y - pos.y) < 1) continue
         windows[id] = clampFrame({ ...frame, x: pos.x, y: pos.y })
         changed = true
       }

@@ -1,4 +1,4 @@
-import { useState, type PointerEvent, type ReactNode } from 'react'
+import { memo, useState, type PointerEvent, type ReactNode } from 'react'
 import { pointerToWorld } from './camera'
 import { panGesture } from './panGesture'
 import { useCanvasStore, type WindowId } from './useCanvasStore'
@@ -66,7 +66,7 @@ function workspaceOf(target: EventTarget | null) {
   return main instanceof HTMLElement ? main : null
 }
 
-export function Window({ id, children }: WindowProps) {
+export const Window = memo(function Window({ id, children }: WindowProps) {
   const frame = useCanvasStore((state) => state.windows[id])
   const focused = useCanvasStore((state) => state.focusedId === id)
   const overview = useCanvasStore((state) => state.isOverviewMode)
@@ -231,4 +231,4 @@ export function Window({ id, children }: WindowProps) {
       </div>
     </section>
   )
-}
+})

@@ -39,6 +39,12 @@ body,
   backface-visibility: hidden;
 }
 
+.canvas-grid-line {
+  fill: none;
+  stroke: white;
+  stroke-width: calc(0.9 / var(--cam-scale, 1));
+}
+
 .window-shell {
   backface-visibility: hidden;
   background: #000;
