@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import {
-  cameraFittingRects,
+  cameraFittingWorld,
   cameraFocusingWindow,
   clampCamera,
   minScaleForViewport,
@@ -36,7 +36,6 @@ type CanvasStore = {
   focusedId: WindowId | null
   isOverviewMode: boolean
   camera: Camera
-  cameraAnimating: boolean
   cameraLocked: boolean
   cameraBeforeOverview: Camera | null
   viewport: Viewport
@@ -136,14 +135,40 @@ function lockedFocusCamera(
   return camerasDiffer(next, camera) ? next : camera
 }
 
-let animateTimer = 0
+const FOCUS_MS = 180
+const OVERVIEW_MS = 420
+let glideRaf = 0
 
-function startCameraAnimation() {
-  if (typeof window === 'undefined') return
-  window.clearTimeout(animateTimer)
-  animateTimer = window.setTimeout(() => {
-    useCanvasStore.setState({ cameraAnimating: false })
-  }, 420)
+function cancelGlide() {
+  if (typeof cancelAnimationFrame === 'undefined') return
+  cancelAnimationFrame(glideRaf)
+  glideRaf = 0
+}
+
+function glideCamera(to: Camera, ms: number) {
+  cancelGlide()
+  const from = useCanvasStore.getState().camera
+  const reduce =
+    typeof matchMedia !== 'undefined' &&
+    matchMedia('(prefers-reduced-motion: reduce)').matches
+  if (reduce || !camerasDiffer(from, to) || typeof requestAnimationFrame === 'undefined') {
+    useCanvasStore.setState({ camera: to })
+    return
+  }
+  const start = performance.now()
+  const step = (now: number) => {
+    const t = Math.min(1, (now - start) / ms)
+    const e = 1 - (1 - t) ** 3
+    useCanvasStore.setState({
+      camera: {
+        x: from.x + (to.x - from.x) * e,
+        y: from.y + (to.y - from.y) * e,
+        scale: from.scale + (to.scale - from.scale) * e,
+      },
+    })
+    glideRaf = t < 1 ? requestAnimationFrame(step) : 0
+  }
+  glideRaf = requestAnimationFrame(step)
 }
 
 function createInitialState() {
@@ -165,7 +190,6 @@ function createInitialState() {
     focusedId: 'terminal' as WindowId,
     isOverviewMode: false,
     camera: boundCamera(cameraFocusingWindow(terminal, viewport), viewport),
-    cameraAnimating: false,
     cameraLocked: true,
     cameraBeforeOverview: null as Camera | null,
     windows: { terminal } as Partial<Record<WindowId, WindowFrame>>,
@@ -215,11 +239,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     })
 
     if (nextOverview) {
-      set({
-        camera: boundCamera(cameraFittingRects(framesOf(nextWindows), viewport), viewport),
-        cameraAnimating: true,
-      })
-      startCameraAnimation()
+      glideCamera(boundCamera(cameraFittingWorld(viewport), viewport), OVERVIEW_MS)
       return
     }
 
@@ -250,19 +270,18 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     if (!frame) return
 
     const zIndex = focusedId === id ? frame.zIndex : nextZ(windows)
+    const camera = boundCamera(cameraFocusingWindow(frame, viewport), viewport)
     set({
       focusedId: id,
       isOverviewMode: false,
       cameraLocked: true,
       cameraBeforeOverview: null,
-      camera: boundCamera(cameraFocusingWindow(frame, viewport), viewport),
-      cameraAnimating: true,
       windows: {
         ...windows,
         [id]: { ...frame, zIndex },
       },
     })
-    startCameraAnimation()
+    glideCamera(camera, FOCUS_MS)
   },
 
   focusDirection: (direction) => {
@@ -273,15 +292,16 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
   },
 
   panCamera: (deltaX, deltaY) => {
+    cancelGlide()
     const { camera, viewport } = get()
     set({
       camera: boundCamera(shiftCamera(camera, deltaX, deltaY), viewport),
-      cameraAnimating: false,
       cameraLocked: false,
     })
   },
 
   zoomCamera: (zoomDelta, focusPointX, focusPointY) => {
+    cancelGlide()
     const { camera, viewport } = get()
     set({
       camera: boundCamera(
@@ -294,22 +314,19 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
         ),
         viewport,
       ),
-      cameraAnimating: false,
       cameraLocked: false,
     })
   },
 
   enterOverview: () => {
-    const { isOverviewMode, windows, viewport, camera } = get()
+    const { isOverviewMode, viewport, camera } = get()
     if (isOverviewMode) return
     set({
       isOverviewMode: true,
       cameraLocked: false,
       cameraBeforeOverview: camera,
-      camera: boundCamera(cameraFittingRects(framesOf(windows), viewport), viewport),
-      cameraAnimating: true,
     })
-    startCameraAnimation()
+    glideCamera(boundCamera(cameraFittingWorld(viewport), viewport), OVERVIEW_MS)
   },
 
   toggleOverview: () => {
@@ -329,31 +346,28 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     const { isOverviewMode, cameraBeforeOverview, viewport } = get()
     if (!isOverviewMode) return
 
+    const camera = boundCamera(cameraBeforeOverview ?? get().camera, viewport)
     set({
       isOverviewMode: false,
       cameraLocked: false,
-      camera: boundCamera(cameraBeforeOverview ?? get().camera, viewport),
       cameraBeforeOverview: null,
-      cameraAnimating: true,
     })
-    startCameraAnimation()
+    glideCamera(camera, OVERVIEW_MS)
   },
 
   unlockCamera: () => {
-    set({ cameraLocked: false, cameraAnimating: false })
+    cancelGlide()
+    set({ cameraLocked: false })
   },
 
   fitOverview: () => {
-    const { isOverviewMode, windows, viewport } = get()
+    const { isOverviewMode, viewport } = get()
     if (!isOverviewMode) return
-    set({
-      camera: boundCamera(cameraFittingRects(framesOf(windows), viewport), viewport),
-      cameraAnimating: true,
-    })
-    startCameraAnimation()
+    glideCamera(boundCamera(cameraFittingWorld(viewport), viewport), OVERVIEW_MS)
   },
 
   setViewport: (viewport) => {
+    cancelGlide()
     const { windows, focusedId, isOverviewMode, camera, cameraLocked } = get()
     const size = windowSizeFor(viewport)
     const nextWindows: Partial<Record<WindowId, WindowFrame>> = {}
@@ -372,7 +386,7 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     }
 
     const nextCamera = isOverviewMode
-      ? boundCamera(cameraFittingRects(framesOf(nextWindows), viewport), viewport)
+      ? boundCamera(cameraFittingWorld(viewport), viewport)
       : cameraLocked && focusedId && nextWindows[focusedId]
         ? boundCamera(cameraFocusingWindow(nextWindows[focusedId], viewport), viewport)
         : boundCamera(camera, viewport)
@@ -404,6 +418,8 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
         windows[id] = clampFrame({ ...frame, x: pos.x, y: pos.y })
         changed = true
       }
+
+      if (glideRaf) return changed ? { windows } : state
 
       const camera = boundCamera(
         state.cameraLocked && !state.isOverviewMode

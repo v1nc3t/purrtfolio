@@ -30,27 +30,10 @@ const WindowBody = memo(function WindowBody({
   }
 })
 
-function CanvasGrid() {
-  const windows = useCanvasStore((state) => state.windows)
-  const order = useCanvasStore((state) => state.order)
+function GridLines() {
   const viewport = useCanvasStore((state) => state.viewport)
   const scale = useCanvasStore((state) => state.camera.scale)
   const world = worldRect(windowSizeFor(viewport))
-  const stroke = 0.9 / scale
-  const spots = order.flatMap((id) => {
-    const frame = windows[id]
-    if (!frame) return []
-    return [
-      {
-        id,
-        cx: frame.x - world.x + frame.width / 2,
-        cy: frame.y - world.y + frame.height / 2,
-        radius:
-          Math.hypot(frame.width, frame.height) / 2 +
-          Math.min(frame.width, frame.height) * 0.28,
-      },
-    ]
-  })
 
   return (
     <svg
@@ -67,52 +50,80 @@ function CanvasGrid() {
           x={-world.x}
           y={-world.y}
         >
-          <path d="M48 0 H0 V48" fill="none" stroke="white" strokeWidth={stroke} />
+          <path d="M48 0 H0 V48" fill="none" stroke="white" strokeWidth={0.9 / scale} />
         </pattern>
-        {spots.map(({ id, cx, cy, radius }) => (
+      </defs>
+      <rect width="100%" height="100%" fill="url(#canvas-grid)" opacity="0.12" />
+    </svg>
+  )
+}
+
+function GridSpots() {
+  const windows = useCanvasStore((state) => state.windows)
+  const order = useCanvasStore((state) => state.order)
+  const scale = useCanvasStore((state) => state.camera.scale)
+  const stroke = 0.9 / scale
+
+  return order.map((id) => {
+    const frame = windows[id]
+    if (!frame) return null
+    const radius =
+      Math.hypot(frame.width, frame.height) / 2 +
+      Math.min(frame.width, frame.height) * 0.1
+    const size = radius * 2
+    const left = frame.x + frame.width / 2 - radius
+    const top = frame.y + frame.height / 2 - radius
+    return (
+      <svg
+        key={id}
+        aria-hidden
+        className="pointer-events-none absolute"
+        style={{ left, top, width: size, height: size }}
+      >
+        <defs>
+          <pattern
+            id={`canvas-spot-${id}`}
+            width="48"
+            height="48"
+            patternUnits="userSpaceOnUse"
+            x={-left}
+            y={-top}
+          >
+            <path d="M48 0 H0 V48" fill="none" stroke="white" strokeWidth={stroke} />
+          </pattern>
           <radialGradient
-            key={id}
             id={`canvas-flash-${id}`}
             gradientUnits="userSpaceOnUse"
-            cx={cx}
-            cy={cy}
+            cx={radius}
+            cy={radius}
             r={radius}
           >
             <stop offset="0%" stopColor="white" />
             <stop offset="68%" stopColor="white" />
             <stop offset="100%" stopColor="black" />
           </radialGradient>
-        ))}
-      </defs>
-      <rect width="100%" height="100%" fill="url(#canvas-grid)" opacity="0.12" />
-      {spots.map(({ id, cx, cy, radius }) => (
-        <mask key={id} id={`canvas-flash-mask-${id}`} maskUnits="userSpaceOnUse">
-          <circle cx={cx} cy={cy} r={radius} fill={`url(#canvas-flash-${id})`} />
-        </mask>
-      ))}
-      {spots.map(({ id }) => (
+          <mask id={`canvas-flash-mask-${id}`} maskUnits="userSpaceOnUse">
+            <circle cx={radius} cy={radius} r={radius} fill={`url(#canvas-flash-${id})`} />
+          </mask>
+        </defs>
         <rect
-          key={id}
-          width="100%"
-          height="100%"
-          fill="url(#canvas-grid)"
-            opacity="0.25"
+          width={size}
+          height={size}
+          fill={`url(#canvas-spot-${id})`}
+          opacity="0.25"
           mask={`url(#canvas-flash-mask-${id})`}
         />
-      ))}
-    </svg>
-  )
+      </svg>
+    )
+  })
 }
 
 function CanvasWorld({ children }: { children: ReactNode }) {
   const camera = useCanvasStore((state) => state.camera)
-  const animating = useCanvasStore((state) => state.cameraAnimating)
 
   return (
     <div
-      className={`absolute top-0 left-0 origin-top-left ${
-        animating ? 'canvas-world-animate' : ''
-      }`}
+      className="absolute top-0 left-0 origin-top-left"
       style={{
         transform: `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`,
       }}
@@ -149,12 +160,13 @@ export function Workspace({ username }: WorkspaceProps) {
       ref={containerRef}
       data-username={username}
       data-overview={overview ? 'true' : 'false'}
-      className="relative min-h-svh cursor-default overflow-hidden bg-workspace data-[panning=true]:cursor-grabbing data-[space=true]:cursor-grab"
+      className="relative min-h-svh cursor-default overflow-clip bg-workspace data-[panning=true]:cursor-grabbing data-[space=true]:cursor-grab"
       aria-label={overview ? 'window overview' : 'workspace'}
     >
       <span className="sr-only">signed in as {username}</span>
       <CanvasWorld>
-        <CanvasGrid />
+        <GridLines />
+        <GridSpots />
         {openIds.map((id) => (
           <Window key={id} id={id}>
             <WindowBody id={id} username={username} />

@@ -9,13 +9,6 @@ type WindowProps = {
   children: ReactNode
 }
 
-const FLOAT_DELAY: Record<WindowId, string> = {
-  terminal: '0s',
-  about: '-1.2s',
-  projects: '-2.4s',
-  photos: '-3.6s',
-}
-
 const DRAG_THRESHOLD = 5
 
 function PaperBanner({
@@ -196,13 +189,9 @@ export function Window({ id, children }: WindowProps) {
       } ${dragging ? 'cursor-grabbing' : ''}`}
     >
       <div
-        className={`window-shell animate-window-float flex h-full flex-col motion-reduce:animate-none ${
+        className={`window-shell flex h-full flex-col ${
           paper ? 'window-shell-paper' : 'bg-terminal-bg'
         }`}
-        style={{
-          animationDelay: FLOAT_DELAY[id],
-          animationPlayState: dragging ? 'paused' : 'running',
-        }}
       >
         {paper ? (
           <PaperBanner

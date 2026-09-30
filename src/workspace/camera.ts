@@ -21,7 +21,6 @@ export type Camera = {
 export const MIN_SCALE = 0.15
 export const MAX_SCALE = 2
 export const FOCUS_MAX_SCALE = 1.6
-export const OVERVIEW_PADDING = 120
 export const DEFAULT_CAMERA: Camera = { x: 0, y: 0, scale: 1 }
 
 function worldForViewport(viewport: Viewport) {
@@ -128,22 +127,8 @@ export function cameraFocusingWindow(rect: Rect, viewport: Viewport): Camera {
   return cameraForRect(rect, viewport, focusPad(viewport), FOCUS_MAX_SCALE)
 }
 
-export function cameraFittingRects(rects: Rect[], viewport: Viewport): Camera {
-  if (rects.length === 0) return { ...DEFAULT_CAMERA }
-  return cameraForRect(boundingBox(rects), viewport, OVERVIEW_PADDING)
-}
-
-export function boundingBox(rects: Rect[]): Rect {
-  const left = Math.min(...rects.map((rect) => rect.x))
-  const top = Math.min(...rects.map((rect) => rect.y))
-  const right = Math.max(...rects.map((rect) => rect.x + rect.width))
-  const bottom = Math.max(...rects.map((rect) => rect.y + rect.height))
-  return {
-    x: left,
-    y: top,
-    width: Math.max(1, right - left),
-    height: Math.max(1, bottom - top),
-  }
+export function cameraFittingWorld(viewport: Viewport): Camera {
+  return cameraForRect(worldRect(windowSizeFor(viewport)), viewport, 0)
 }
 
 export function screenPoint(
