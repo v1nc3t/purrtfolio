@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
 import { useShallow } from 'zustand/react/shallow'
+import { AboutPage } from '../about/AboutPage'
 import { ProjectsPage } from '../projects/ProjectsPage'
 import { Terminal } from '../terminal/Terminal'
 import { useCanvasCamera } from './useCanvasCamera'
@@ -25,6 +26,8 @@ const WindowBody = memo(function WindowBody({
       return <Terminal username={username} />
     case 'projects':
       return <ProjectsPage />
+    case 'about':
+      return <AboutPage />
     default:
       return <div className="h-full" />
   }
