@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSettings } from '../shared/settings'
 
 const TABS = ['about me', 'history', 'structure', 'links', 'settings'] as const
 
@@ -141,9 +142,124 @@ export function AboutPage() {
           id={`about-panel-${tab}`}
           aria-labelledby={`about-tab-${tab}`}
           className="min-h-0 flex-1"
-        />
+        >
+          {tab === 'settings' ? <SettingsPanel /> : null}
+        </div>
       </section>
     </div>
+  )
+}
+
+function SettingsPanel() {
+  const calm = useSettings((state) => state.calm)
+  const trail = useSettings((state) => state.trail)
+  const trailOverWindows = useSettings((state) => state.trailOverWindows)
+  const trailLength = useSettings((state) => state.trailLength)
+  const trailDelay = useSettings((state) => state.trailDelay)
+
+  return (
+    <div className="scrollbar-line flex h-full flex-col gap-8 overflow-auto p-4">
+      <div className="flex flex-col gap-2">
+        <Toggle
+          label="remove animations"
+          checked={calm}
+          onChange={(value) => useSettings.getState().setCalm(value)}
+        />
+        <p className="m-0 text-white/45">hides the grid and background drag</p>
+      </div>
+      <div className="flex flex-col gap-3">
+        <Toggle
+          label="mouse trail"
+          checked={trail}
+          onChange={(value) => useSettings.getState().setTrail(value)}
+        />
+        <div className={`flex flex-col gap-3 pl-4 ${trail ? '' : 'opacity-40'}`}>
+          <Toggle
+            label="over windows"
+            checked={trailOverWindows}
+            disabled={!trail}
+            onChange={(value) => useSettings.getState().setTrailOverWindows(value)}
+          />
+          <Slider
+            label="length"
+            min={16}
+            max={120}
+            step={4}
+            value={trailLength}
+            disabled={!trail}
+            onChange={(value) => useSettings.getState().setTrailLength(value)}
+          />
+          <Slider
+            label="delay"
+            min={1}
+            max={10}
+            value={trailDelay}
+            disabled={!trail}
+            onChange={(value) => useSettings.getState().setTrailDelay(value)}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function Toggle({
+  label,
+  checked,
+  disabled = false,
+  onChange,
+}: {
+  label: string
+  checked: boolean
+  disabled?: boolean
+  onChange: (value: boolean) => void
+}) {
+  return (
+    <label className="flex items-center justify-between gap-4">
+      {label}
+      <input
+        type="checkbox"
+        checked={checked}
+        disabled={disabled}
+        onChange={(event) => onChange(event.target.checked)}
+        className="retro-check"
+      />
+    </label>
+  )
+}
+
+function Slider({
+  label,
+  min,
+  max,
+  step = 1,
+  value,
+  disabled,
+  onChange,
+}: {
+  label: string
+  min: number
+  max: number
+  step?: number
+  value: number
+  disabled: boolean
+  onChange: (value: number) => void
+}) {
+  return (
+    <label className="grid grid-cols-[4.5rem_1fr_2ch] items-center gap-3">
+      {label}
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        disabled={disabled}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="retro-range"
+      />
+      <span className="text-right text-white/45">{value}</span>
+    </label>
   )
 }
 

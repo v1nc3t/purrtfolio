@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
+import { useSettings } from './settings'
 
 const GLYPHS = '·+x*/\\|-:'
-const MAX = 72
 
 type Bit = {
   x: number
@@ -14,10 +14,11 @@ type Bit = {
 
 export function MouseTrail() {
   const ref = useRef<HTMLCanvasElement>(null)
+  const trail = useSettings((state) => state.trail)
 
   useEffect(() => {
     const canvas = ref.current
-    if (!canvas) return
+    if (!canvas || !trail) return
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
@@ -38,7 +39,8 @@ export function MouseTrail() {
     }
 
     function spawn(x: number, y: number, dx: number, dy: number) {
-      if (bits.length >= MAX) bits.shift()
+      const max = useSettings.getState().trailLength
+      while (bits.length >= max) bits.shift()
       bits.push({
         x,
         y,
@@ -62,7 +64,7 @@ export function MouseTrail() {
         bit.y += bit.vy
         bit.vx *= 0.98
         bit.vy *= 0.98
-        bit.life -= 0.012
+        bit.life -= 0.036 / useSettings.getState().trailDelay
         if (bit.life <= 0 || !onCanvas(bit.x, bit.y)) {
           bits.splice(i, 1)
           continue
@@ -77,6 +79,7 @@ export function MouseTrail() {
     }
 
     function onCanvas(x: number, y: number) {
+      if (useSettings.getState().trailOverWindows) return true
       const hit = document.elementFromPoint(x, y)
       return !(hit instanceof Element && hit.closest('.window-frame, .taskbar'))
     }
@@ -117,7 +120,7 @@ export function MouseTrail() {
       window.removeEventListener('resize', fit)
       window.removeEventListener('pointermove', onMove)
     }
-  }, [])
+  }, [trail])
 
   return (
     <canvas

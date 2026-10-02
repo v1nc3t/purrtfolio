@@ -199,6 +199,67 @@ body,
   background: var(--color-rule);
 }
 
+.retro-check {
+  appearance: none;
+  width: 1em;
+  height: 1em;
+  margin: 0;
+  border: 1px solid currentColor;
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.retro-check:checked {
+  background: currentColor;
+}
+
+.retro-check:disabled {
+  cursor: default;
+}
+
+.retro-range {
+  appearance: none;
+  width: 100%;
+  height: 0.75em;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.retro-range:disabled {
+  cursor: default;
+}
+
+.retro-range::-webkit-slider-runnable-track {
+  height: 1px;
+  background: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+.retro-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 0.4em;
+  height: 0.75em;
+  margin-top: calc((1px - 0.75em) / 2);
+  border: 0;
+  border-radius: 0;
+  background: currentColor;
+}
+
+.retro-range::-moz-range-track {
+  height: 1px;
+  border: 0;
+  background: color-mix(in srgb, currentColor 45%, transparent);
+}
+
+.retro-range::-moz-range-thumb {
+  width: 0.4em;
+  height: 0.75em;
+  border: 0;
+  border-radius: 0;
+  background: currentColor;
+}
+
 .slice-link {
   color: inherit;
   text-decoration: none;

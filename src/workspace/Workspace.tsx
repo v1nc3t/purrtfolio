@@ -2,6 +2,7 @@ import { memo, useEffect, useRef, type CSSProperties, type ReactNode } from 'rea
 import { useShallow } from 'zustand/react/shallow'
 import { AboutPage } from '../about/AboutPage'
 import { ProjectsPage } from '../projects/ProjectsPage'
+import { useSettings } from '../shared/settings'
 import { Terminal } from '../terminal/Terminal'
 import { useCanvasCamera } from './useCanvasCamera'
 import { useCanvasStore, type WindowId } from './useCanvasStore'
@@ -166,6 +167,7 @@ export function Workspace({ username }: WorkspaceProps) {
   const openIds = useCanvasStore(useShallow((state) => state.order))
   const minimized = useCanvasStore(useShallow((state) => state.minimized))
   const overview = useCanvasStore((state) => state.isOverviewMode)
+  const calm = useSettings((state) => state.calm)
 
   useEffect(() => {
     function syncViewport() {
@@ -191,8 +193,12 @@ export function Workspace({ username }: WorkspaceProps) {
       <span className="sr-only">signed in as {username}</span>
       <Taskbar />
       <CanvasWorld>
-        <GridLines />
-        <GridSpots />
+        {calm ? null : (
+          <>
+            <GridLines />
+            <GridSpots />
+          </>
+        )}
         {openIds.filter((id) => !minimized.includes(id)).map((id) => (
           <Window key={id} id={id}>
             <WindowBody id={id} username={username} />
