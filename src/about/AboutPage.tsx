@@ -1,5 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type Ref } from 'react'
 import { useSettings } from '../shared/settings'
+import { useCanvasStore } from '../workspace/useCanvasStore'
+import { historyRows, historySummary, type HistoryName, type HistoryRow } from './historyGraph'
 
 const TABS = ['about me', 'history', 'structure', 'links', 'settings'] as const
 
@@ -143,10 +145,102 @@ export function AboutPage() {
           aria-labelledby={`about-tab-${tab}`}
           className="min-h-0 flex-1"
         >
+          {tab === 'history' ? <HistoryPanel /> : null}
           {tab === 'settings' ? <SettingsPanel /> : null}
         </div>
       </section>
     </div>
+  )
+}
+
+const BRANCH_COLOR: Record<string, string> = {
+  main: '#a89984',
+  highschool: '#83a598',
+  university: '#8ec07c',
+  'CSEP project': '#fabd2f',
+  meowDFer: '#fe8019',
+  'nyatching-list': '#d3869b',
+}
+
+function HistoryLine({ row, headRef }: { row: HistoryRow; headRef?: Ref<HTMLSpanElement> }) {
+  const linked = row.labels.some((label) => label.link)
+  const named = row.labels.filter((label) => !label.point)
+  const points = row.labels.filter((label) => label.point)
+  return (
+    <span ref={headRef} aria-hidden={!linked} className={`block whitespace-pre${row.future ? ' opacity-35' : ''}`}>
+      <span className="text-white">{row.head ? '> ' : '  '}</span>
+      {row.glyphs.map((glyph, index) => (
+        <span key={index} style={{ color: BRANCH_COLOR[glyph.branch] }}>
+          {glyph.text}
+        </span>
+      ))}
+      {row.date ? <span className="text-white/45">{row.date}</span> : null}
+      {named.length > 0 && (
+        <span className="text-white">
+          (
+          {named.map((label, index) => (
+            <span key={label.text}>
+              {index > 0 ? ', ' : null}
+              <HistoryLabel label={label} />
+            </span>
+          ))}
+          )
+        </span>
+      )}
+      {points.length > 0 && (
+        <span className="text-white">
+          {named.length > 0 ? ' ' : null}
+          {points.map((label, index) => (
+            <span key={label.text}>
+              {index > 0 ? ', ' : null}
+              <HistoryLabel label={label} />
+            </span>
+          ))}
+        </span>
+      )}
+    </span>
+  )
+}
+
+function HistoryLabel({ label }: { label: HistoryName }) {
+  const color = label.branch ? BRANCH_COLOR[label.branch] : undefined
+  if (!label.link) return <span style={color ? { color } : undefined}>{label.text}</span>
+  return (
+    <button
+      type="button"
+      style={color ? { color } : undefined}
+      className="slice-link border-0 bg-transparent p-0 font-[inherit]"
+      onPointerDown={(event) => event.stopPropagation()}
+      onClick={() => useCanvasStore.getState().open('projects')}
+    >
+      {label.text}
+    </button>
+  )
+}
+
+function HistoryPanel() {
+  const now = new Date()
+  const rows = historyRows(now)
+  const scroller = useRef<HTMLPreElement>(null)
+  const head = useRef<HTMLSpanElement>(null)
+
+  useLayoutEffect(() => {
+    const pane = scroller.current
+    const mark = head.current
+    if (!pane || !mark) return
+    pane.scrollTop = mark.offsetTop - pane.clientHeight / 2 + mark.offsetHeight / 2
+  }, [])
+
+  return (
+    <pre
+      ref={scroller}
+      className="scrollbar-line relative m-0 h-full overflow-auto py-4 pr-4 pl-[20%] leading-normal"
+    >
+      <span className="sr-only">{historySummary(now)}</span>
+      {rows.map((row) => (
+        <HistoryLine key={row.id} row={row} headRef={row.head ? head : undefined} />
+      ))}
+    </pre>
   )
 }
 
