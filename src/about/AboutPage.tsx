@@ -109,7 +109,7 @@ export function AboutPage() {
           <Line label="nationality" value="ro/in" />
           <div className="leading-[1.2em]">
             <p className="m-0 text-white/45">hobbies</p>
-            {['building software', 'photography', 'cooking', 'music'].map((item, index, list) => (
+            {['building software', 'photography', 'cooking', 'music', 'movies', 'tv shows', 'anime', 'manga'].map((item, index, list) => (
               <p key={item} className="m-0 whitespace-pre text-white">
                 <span className="text-white/45">{index === list.length - 1 ? '`' : '|'}-- </span>
                 {item}
@@ -146,6 +146,7 @@ export function AboutPage() {
           aria-labelledby={`about-tab-${tab}`}
           className="min-h-0 flex-1"
         >
+          {tab === 'about me' ? <AboutMePanel /> : null}
           {tab === 'history' ? <HistoryPanel /> : null}
           {tab === 'structure' ? <StructurePanel /> : null}
           {tab === 'settings' ? <SettingsPanel /> : null}
@@ -329,6 +330,43 @@ function HistoryPanel() {
         <HistoryLine key={row.id} row={row} headRef={row.head ? head : undefined} />
       ))}
     </pre>
+  )
+}
+
+function AboutLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <a href={href} target="_blank" rel="noreferrer" className="slice-link">
+      {children}
+    </a>
+  )
+}
+
+function AboutMePanel() {
+  return (
+    <div className="scrollbar-line flex h-full flex-col gap-3 overflow-auto p-4 leading-relaxed text-white">
+      <p>
+        hey, this is my personal website, with things i enjoy. i spend most of my time building software. the rest goes to photography, cooking, and music.
+      </p>
+      <p>
+        i was watching youtube one day and saw a video pop up on my page by <AboutLink href="https://www.youtube.com/@onionboots">onionboots</AboutLink> about a <AboutLink href="https://www.youtube.com/watch?v=tkUgOT22F5s&t=490s">web revival</AboutLink>. it instantly captivated my attention. after watching it i had so many ideas, and couldn't think of which to choose. up until now i was brainwashed to think that websites with crazy visuals or single scroll pages were above all.
+      </p>
+      <p>
+        i lost the plot. the most important thing is whether you like it or not. websites should be created to fit your preferences, not some fancy standards. and this is what i found on the sites listed on neocities. going through them was eye-opening: so many websites people made, different layouts, styles, and aesthetics.
+      </p>
+      <p>
+        i was planning on creating a site of my own for a while, but i didn't have inspiration, not until i saw that video. surfing through the interconnected web, i was able to get inspiration from everywhere (the sites i took inspiration from are listed in links).
+      </p>
+      <p>
+        the theme i've always liked was a retro one, that revolves around ascii (words, images, art). retro, but a minimalistic retro. no flashy colors or images, just simplicity.
+      </p>
+      <p>
+        if you haven't checked out my projects yet (also on <AboutLink href="https://github.com/v1nc3t/">github</AboutLink>), all of them have cat themed names. this started in highschool, when i made a tic tac toe game in c++ and called it cit cat coe. from that point onwards, only cat themed projects (personal ones only, sadly).
+      </p>
+      <p>
+        i do photography, and i got tired of posting pictures on instagram. it felt like it was more for the likes than the photos themselves. you can go to the photography page and check them out, and not "like" them.
+      </p>
+      <p>enjoy the site, and try to find the easter eggs i scattered around.</p>
+    </div>
   )
 }
 
