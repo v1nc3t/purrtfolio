@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type Ref } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react'
 import { useSettings } from '../shared/settings'
 import { useCanvasStore } from '../workspace/useCanvasStore'
 import { historyRows, historySummary, type HistoryName, type HistoryRow } from './historyGraph'
@@ -146,6 +146,7 @@ export function AboutPage() {
           className="min-h-0 flex-1"
         >
           {tab === 'history' ? <HistoryPanel /> : null}
+          {tab === 'structure' ? <StructurePanel /> : null}
           {tab === 'settings' ? <SettingsPanel /> : null}
         </div>
       </section>
@@ -215,6 +216,92 @@ function HistoryLabel({ label }: { label: HistoryName }) {
     >
       {label.text}
     </button>
+  )
+}
+
+const INK = '#ebdbb2'
+const TRUNK = '#a89984'
+
+const PAGES: { name: string; color: string; children: string[] }[] = [
+  { name: 'about', color: '#83a598', children: ['about me', 'history', 'structure', 'links', 'settings'] },
+  { name: 'projects', color: '#fabd2f', children: [] },
+  { name: 'photos', color: '#d3869b', children: [] },
+]
+
+function StructureRow({ children }: { children: ReactNode }) {
+  return <span className="flex h-[1.2em] items-stretch leading-none">{children}</span>
+}
+
+function Elbow({
+  rail,
+  color,
+  label,
+  stop = false,
+}: {
+  rail: string
+  color: string
+  label?: string
+  stop?: boolean
+}) {
+  return (
+    <>
+      <span className="relative h-full w-[1ch] shrink-0">
+        <span
+          className={`absolute left-1/2 w-px -translate-x-1/2 ${stop ? 'top-0 h-1/2' : 'inset-y-0'}`}
+          style={{ background: rail }}
+        />
+        {label != null ? (
+          <span className="absolute top-1/2 left-1/2 h-px w-[2.8ch]" style={{ background: color }} />
+        ) : null}
+      </span>
+      {label != null ? (
+        <span className="self-center pl-[3.4ch]" style={{ color }}>
+          {label}
+        </span>
+      ) : null}
+    </>
+  )
+}
+
+function StructurePanel() {
+  return (
+    <pre className="scrollbar-line m-0 h-full overflow-auto py-8 pr-4 pl-[16%] whitespace-normal">
+      <StructureRow>
+        <span className="self-center" style={{ color: INK }}>
+          terminal
+        </span>
+      </StructureRow>
+      {PAGES.map((page, index) => {
+        const last = index === PAGES.length - 1
+        return (
+          <span key={page.name}>
+            <StructureRow>
+              <Elbow rail={TRUNK} color={TRUNK} />
+            </StructureRow>
+            <StructureRow>
+              <Elbow rail={last ? page.color : TRUNK} color={page.color} label={page.name} stop={last} />
+            </StructureRow>
+            {page.children.map((child, childIndex) => {
+              const end = childIndex === page.children.length - 1
+              return (
+                <span key={child}>
+                  <StructureRow>
+                    {last ? <span className="w-[1ch] shrink-0" /> : <Elbow rail={TRUNK} color={TRUNK} />}
+                    <span className="w-[5ch] shrink-0" />
+                    <Elbow rail={page.color} color={page.color} />
+                  </StructureRow>
+                  <StructureRow>
+                    {last ? <span className="w-[1ch] shrink-0" /> : <Elbow rail={TRUNK} color={TRUNK} />}
+                    <span className="w-[5ch] shrink-0" />
+                    <Elbow rail={page.color} color={page.color} label={child} stop={end} />
+                  </StructureRow>
+                </span>
+              )
+            })}
+          </span>
+        )
+      })}
+    </pre>
   )
 }
 
