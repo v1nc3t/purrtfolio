@@ -93,27 +93,28 @@ export function AboutPage() {
           <Line label="username" value="v1nc3nt" />
           <Secret
             label="name"
-            hidden="^!#a7.K-g30&)3 C;o3[#~"
+            hidden="^!#a7-K@ C;o3[#~"
             shown="that is"
             open={nameOpen}
             onToggle={() => setNameOpen((open) => !open)}
           />
           <Secret
             label="email"
-            hidden="?3o%h3.6x$p@mo;l.<0m"
+            hidden="?o%h3.6xp@mo;l.<0m"
             shown="private"
             open={emailOpen}
             onToggle={() => setEmailOpen((open) => !open)}
           />
           <Line label="year" value="2006" />
-          <Line label="nationality" value="romanian/indian" />
-          <div>
-            <p className="m-0 text-white/45">hobbies:</p>
-            <ul className="m-0 list-none p-0 text-white">
-              {['building software', 'photography', 'cooking', 'music'].map((item) => (
-                <li key={item}>- {item}</li>
-              ))}
-            </ul>
+          <Line label="nationality" value="ro/in" />
+          <div className="leading-[1.2em]">
+            <p className="m-0 text-white/45">hobbies</p>
+            {['building software', 'photography', 'cooking', 'music'].map((item, index, list) => (
+              <p key={item} className="m-0 whitespace-pre text-white">
+                <span className="text-white/45">{index === list.length - 1 ? '`' : '|'}-- </span>
+                {item}
+              </p>
+            ))}
           </div>
         </div>
       </aside>

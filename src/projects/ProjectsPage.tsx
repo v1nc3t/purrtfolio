@@ -71,10 +71,13 @@ export function ProjectsPage() {
 
       <p className="mt-6 mb-0 border-b border-rule pb-5 text-center leading-relaxed">
         <p>
-          welcome to my project archive, styled like a newspaper, designed with ascii charaters, and themed around cats. here you can find software, tools and side-projects i have either built or worked on.
+          welcome to my project archive blog, where i want to write about the activites i attended and the projects i work on, and my thoughts about them. 
+          here you can find software, tools and side-projects i have either built or worked on.
+          styled like a newspaper, designed with ascii charaters, and themed around cats.
         </p>
         <p>
-          i did come across a cool website that inspired me for this design: {' '} <SliceLink href="https://eduardoboucas.com/">eduardoboucas.com</SliceLink>
+          i did come across a cool website that inspired me for this design: 
+          {' '} <SliceLink href="https://eduardoboucas.com/">eduardoboucas.com</SliceLink>
         </p>
       </p>
 
@@ -86,16 +89,19 @@ export function ProjectsPage() {
             date='13 Sep 2026'
           >
             <p>
-              With a some friends I took part in a robotics hackathon, 
-              where we had to build a robot, from scratch, that can carry a small payload and drop it.
+              With a some friends I took part in an intro to robotics hackathon, you didn't need any prior knowledge for enlist.
+              We had to build a robot, from scratch, that can carry a small payload and drop it.
+              We given a small crash course on the basics in robotics, how a circuit works, basic components like: servo, dc, and stepper motors
             </p>
             <p>
               With no background or knowledge in robotics, we build a robot, programmed it, and drove it to a close call onto the podium.
-              I enjoyed it a lot, working together, designing, debugging, and building.    
+              I enjoyed it a lot, working together, designing, debugging, and building.
             </p>
             <p>
-              The competition consisted in driving the robot on a multi-story course made of wood, collecting miniture ducks from droppers and bringging them back to a box.
-              I did feel a little sad not winnig, but because I had so mcuh fun that I didn't even mind.
+              The competition consisted in driving the robot on a multi-story course made of wood, 
+              collecting miniture ducks from droppers and bringging them back to a box.
+              We played two rounds, against 3 teams, with 9 minutes on the clock. 
+              I didn't even feel sad not winnig, but only because I had so much fun building and coding it.
             </p>
           </FullPost>
 
@@ -103,7 +109,7 @@ export function ProjectsPage() {
             title="Watchlist for not forgetting shows"
             date="Summer 2026"
             figure={FIGURE_NYATCHING}
-            image="right"
+            image="left"
             links={
               <>
                 <SliceLink href="https://chromewebstore.google.com/detail/nyatching-list/lfclngikmpcnhmgmakapkcmlpkbgjcna">chrome store</SliceLink>
@@ -117,12 +123,22 @@ export function ProjectsPage() {
               Have you finished a season and never got reminded a new season is out?
             </p>
             <p>
-              Well this web extention fixes that exact problem. You can add a show directly from <SliceLink href="https://www.imdb.com/">IMDB</SliceLink> through the pop up,
+              Well this web extention fixes that exact problem. You can add a show directly from 
+              <SliceLink href="https://www.imdb.com/">IMDB</SliceLink> through the pop up,
               set your progress, and even get reminders about new seasons or episodes.
+              You can set the time intervals at which you get the notifications
+            </p>
+            <p>
+              Organise you media based in the status they have: watching, waiting, next up, completed, and dropeed.
+              For the aesthetics, i have two viewing modes: tile and list view. And there is dark and light mode. 
+            </p>
+            <p>
+              It is available for both chrome and firefox. It is also available for firefox mobile, on android.
+              (sadly IOS deos not suppot extentions in firefox mobile)  
             </p>
           </FullPost>
 
-          <HalfPost
+          <FullPost
             title="Build a CLI tool for manga"
             date='Spring 2026'
             links={
@@ -130,16 +146,25 @@ export function ProjectsPage() {
             }
           >
             <p>
-              I had a problem, whenever I downloaded manga, through legal means ;), they would come in compressed folders of chapters, having a .png with each page.
+              I had a problem, whenever I downloaded manga, through legal means ;), 
+              they would come in compressed folders of chapters, having a .png with each page.
               So I wanted to automate the process of extracting and compiling into chapter PDFs. 
             </p>
             <p>
-              I used python, since it was easy to use and had helpful libraries. 
-              I did add some features along the way, such as a web scraper that finds the chapter ranges for volumes of the manga given a link from wikipedia or fandom.com.
-              So the PDFs of chapters can be merged into volume PDFs.
+              I used python, since it was easy to use and had helpful libraries.
+              There are 3 main commands: extract, convert, and merge.
+              Extract multiple compressed files.
+              Convert chapter folders into PDFs files.
+              Merge chapter PDFs into volume PDFs using a chapter range file.
             </p>
-
-          </HalfPost>
+            <p>
+              There is one more feature, a web scraper that when given a link from wikipedia or fandom.com of the manga.
+              It extract the volume range and creates the file that is used for the merge step.
+            </p>
+            <p>
+              It is docker compatible, and there is a script that does the download for you.
+            </p>
+          </FullPost>
 
           <HalfPost
             title="Participated in an AI Hackathon"
@@ -156,6 +181,20 @@ export function ProjectsPage() {
               Much of the day was spent sitting, talking and comming up with
               ideas. At a certain point I was feeling very bored, but I did get
               experience working in a team and free snacks :)
+            </p>
+          </HalfPost>
+
+          <HalfPost title="CSEP project" date="Nov 2025">
+            <p>
+              FoodPal is an all-in-one distributed cooking organizer developed as part of the Collaborative Software Engineering Project at TU Delft.
+              A client / server application, with no user system.
+            </p>
+            <p>
+              The application uses a client/server architecture to help users manage recipes, ingredients, and shopping lists in one place. 
+              It was developed collaboratively in a team, using weekly Scrum practices to plan tasks, track progress, and coordinate development.
+            </p>
+            <p>
+              Through the project, I gained practical experience in software architecture, object-oriented programming, version control, testing, collaborative development, and working in an Agile/Scrum environment.
             </p>
           </HalfPost>
         </section>
