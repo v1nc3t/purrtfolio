@@ -6,6 +6,7 @@ type Span = {
   end: readonly [number, number]
   link?: boolean
   from?: 'main' | 'school'
+  fade?: boolean
 }
 
 const SCHOOLS: readonly Span[] = [
@@ -14,6 +15,7 @@ const SCHOOLS: readonly Span[] = [
 ]
 
 const PROJECTS: readonly Span[] = [
+  { name: 'cit cat coe', start: [2023, 12], end: [2024, 8], link: true, from: 'main', fade: true },
   { name: 'CSEP project', start: [2025, 11], end: [2026, 1], from: 'school' },
   { name: 'meowDFer', start: [2026, 2], end: [2026, 6], link: true, from: 'main' },
   { name: 'nyatching-list', start: [2026, 7], end: [2026, 8], link: true, from: 'main' },
@@ -35,6 +37,7 @@ type Branch = {
   link?: boolean
   project: boolean
   offMain: boolean
+  fade?: boolean
 }
 
 const branches: Branch[] = [...SCHOOLS, ...PROJECTS].map((span) => ({
@@ -44,6 +47,7 @@ const branches: Branch[] = [...SCHOOLS, ...PROJECTS].map((span) => ({
   link: 'link' in span ? span.link : undefined,
   project: PROJECTS.some((project) => project.name === span.name),
   offMain: span.from === 'main',
+  fade: span.fade,
 }))
 
 const pointers = POINTERS.map((pointer) => ({
@@ -57,7 +61,7 @@ const last = branches[1].end
 
 export type HistoryName = { text: string; link?: boolean; point?: boolean; branch?: string }
 
-export type HistoryGlyph = { text: string; branch: string }
+export type HistoryGlyph = { text: string; branch: string; fade?: number }
 
 export type HistoryRow = {
   id: string
@@ -100,6 +104,10 @@ function forkGlyphs(branch: Branch, school: Branch | undefined) {
     return [glyph('| ', MAIN), glyph('|', school.name), glyph('\\', branch.name), glyph('  ', branch.name)]
   }
   return [glyph('|', MAIN), glyph('\\', branch.name), glyph('  ', branch.name)]
+}
+
+function fadeBackGlyphs(school: Branch) {
+  return [glyph('|', MAIN), glyph('  ', MAIN), glyph('\\', school.name), glyph('  ', school.name)]
 }
 
 function joinGlyphs(branch: Branch, school: Branch | undefined) {
@@ -145,10 +153,18 @@ export function historyRows(now: Date): HistoryRow[] {
     const text = labelText(names)
     const date = !dated ? '' : text ? `${monthName} ` : month === 1 ? String(year) : ''
     const line = `${head ? '>' : ' '} ${glyphs.map((item) => item.text).join('')}${date}${text}`
+    const fading = branches.find((branch) => branch.fade && at >= branch.start && at < branch.end)
+    if (fading) {
+      const opacity = Math.max(0.15, 1 - (at - fading.start) / (fading.end - fading.start))
+      for (const item of glyphs) {
+        if (item.branch === fading.name) item.fade = opacity
+      }
+    }
     rows.push({ id: key, line, glyphs, date, labels: names, head, future: at > cursor })
   }
   for (let id = last; id >= first; id--) {
-    const merging = branches.find((branch) => branch.end === id)
+    const merging = branches.find((branch) => branch.end === id && !branch.fade)
+    const fadingOut = branches.find((branch) => branch.fade && branch.end === id)
     const starting = branches.find((branch) => branch.start === id)
     const school = schoolAt(id)
     const project = projectAt(id)
@@ -161,6 +177,9 @@ export function historyRows(now: Date): HistoryRow[] {
     } else if (starting) {
       emit(`${id}-join`, joinGlyphs(starting, school), id, [], false)
       emit(String(id), commitGlyphs(starting, school, Boolean(pointer)), id, [named(starting), ...extra], true)
+    } else if (fadingOut?.offMain && school) {
+      emit(String(id), bodyGlyphs(school, undefined, Boolean(pointer)), id, extra, true)
+      emit(`${id}-fade`, fadeBackGlyphs(school), id, [], false)
     } else {
       emit(String(id), bodyGlyphs(school, project, Boolean(pointer)), id, extra, true)
     }
@@ -171,16 +190,26 @@ export function historyRows(now: Date): HistoryRow[] {
 export function historySummary(now: Date) {
   const month = MONTHS[now.getMonth()]
   const year = now.getFullYear()
-  return `highschool, sep 2021 to jun 2025. university, sep 2025 to jun 2028. CSEP project, nov 2025 to jan 2026. meowDFer, feb 2026 to jun 2026. AI hackathon, may 2026. nyatching-list, jul 2026 to sep 2026. intro robotics hackathon, sep 2026. now ${month} ${year}. each line is a month.`
+  return `highschool, sep 2021 to jun 2025. cit cat coe, dec 2023, fading out over the next eight months. university, sep 2025 to jun 2028. CSEP project, nov 2025 to jan 2026. meowDFer, feb 2026 to jun 2026. AI hackathon, may 2026. nyatching-list, jul 2026 to sep 2026. intro robotics hackathon, sep 2026. now ${month} ${year}. each line is a month.`
 }
 
 function assertHistory() {
   const rows = historyRows(new Date(2026, 9, 3))
   const linked = (name: string) =>
     rows.some((row) => row.labels.some((label) => label.text === name && label.link))
-  if (!['meowDFer', 'nyatching-list', 'AI hackathon', 'intro robotics hackathon'].every(linked)) {
+  if (!['cit cat coe', 'meowDFer', 'nyatching-list', 'AI hackathon', 'intro robotics hackathon'].every(linked)) {
     throw new Error('missing link')
   }
+  const cit = rows.filter((row) => row.glyphs.some((item) => item.branch === 'cit cat coe'))
+  const citMark = (mark: string) => cit.some((row) => row.glyphs.some((item) => item.branch === 'cit cat coe' && item.text.includes(mark)))
+  if (!citMark('/') || citMark('\\')) throw new Error('cit merge')
+  const jog = rows.find((row) => row.id.endsWith('-fade'))
+  if (!jog?.glyphs.some((item) => item.branch === 'highschool' && item.text === '\\')) throw new Error('school jog')
+  if (jog.glyphs.filter((item) => item.text.includes('\\')).length !== 1) throw new Error('school jog')
+  if (jog.glyphs.some((item) => item.branch === 'cit cat coe')) throw new Error('cit jog')
+  if (!cit.some((row) => row.glyphs.some((item) => item.fade != null && item.fade < 0.5))) throw new Error('cit fade')
+  const citStart = rows.find((row) => row.line.includes('dec 2023') && row.labels.some((label) => label.text === 'cit cat coe'))
+  if (citStart?.glyphs[0]?.branch !== 'main') throw new Error('cit lane')
   if (rows.some((row) => row.labels.some((label) => label.point && row.line.includes(`(${label.text})`)))) {
     throw new Error('point parens')
   }

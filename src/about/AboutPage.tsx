@@ -90,7 +90,7 @@ export function AboutPage() {
           </pre>
         </div>
         <div className="flex flex-col gap-2">
-          <Line label="username" value="v1nc3nt" />
+          <Line label="username" value="v1nc3t" />
           <Secret
             label="name"
             hidden="^!#a7-K@ C;o3[#~"
@@ -163,6 +163,7 @@ const BRANCH_COLOR: Record<string, string> = {
   'CSEP project': '#fabd2f',
   meowDFer: '#fe8019',
   'nyatching-list': '#d3869b',
+  'cit cat coe': '#b8bb26',
 }
 
 function HistoryLine({ row, headRef }: { row: HistoryRow; headRef?: Ref<HTMLSpanElement> }) {
@@ -173,7 +174,7 @@ function HistoryLine({ row, headRef }: { row: HistoryRow; headRef?: Ref<HTMLSpan
     <span ref={headRef} aria-hidden={!linked} className={`block whitespace-pre${row.future ? ' opacity-35' : ''}`}>
       <span className="text-white">{row.head ? '> ' : '  '}</span>
       {row.glyphs.map((glyph, index) => (
-        <span key={index} style={{ color: BRANCH_COLOR[glyph.branch] }}>
+        <span key={index} style={{ color: BRANCH_COLOR[glyph.branch], opacity: glyph.fade }}>
           {glyph.text}
         </span>
       ))}

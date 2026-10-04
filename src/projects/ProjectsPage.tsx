@@ -171,30 +171,63 @@ export function ProjectsPage() {
             date='2 May 2026'
           >
             <p>
-              I was incouraged by a friend to participate in a hackathon. Wans't
+              I was encouraged by a friend to participate in a hackathon. Wasn't
               sure at first but I gave in, with the excuse of trying it at least
-              once. The experience was not bad, but not writting a single line of
-              code for 12h, prompting everything to an AI and sitting back took
+              once. The experience was not bad, but not writing a single line of
+              code for 12h, prompting everything to an AI and sitting back, took
               the fun out of it.
             </p>
             <p>
-              Much of the day was spent sitting, talking and comming up with
+              Much of the day was spent sitting, talking and coming up with
               ideas. At a certain point I was feeling very bored, but I did get
               experience working in a team and free snacks :)
+            </p>
+            <p>
+              The problem we had to solve was very vague and not an intriguing one.
+              We had to solve the lack of feedback between landlords and people who are trying to find an apartment.
+              Solving this could be done in various ways, but the idea had to be applied easily, not migrating from existing systems but integrating with them.
+            </p>
+            <p>
+              For me the worst part was that your idea had to be monetizable, make money somehow. That was the big criteria for it. I lean toward more of the open source part of software.
+              I am quite annoyed by the SaaS (software as a service) philosophy. Just wanting to use simple tools and getting hit with a paywall, or even worse, buying software and not owning it.
+              Bring back the good old days, where you could use software without paying monthly for it.
+            </p>
+            <p>
+              p.s. placed fourth in this one
             </p>
           </HalfPost>
 
           <HalfPost title="CSEP project" date="Nov 2025">
             <p>
-              FoodPal is an all-in-one distributed cooking organizer developed as part of the Collaborative Software Engineering Project at TU Delft.
-              A client / server application, with no user system.
+              This was my first proper group project ever. I have worked in teams before in highschool, but 2 people would do all the work and the others sit back and relax, even teachers would not do anything about it. Until this project, where we had to work, and would be penalized if not.
             </p>
             <p>
-              The application uses a client/server architecture to help users manage recipes, ingredients, and shopping lists in one place. 
-              It was developed collaboratively in a team, using weekly Scrum practices to plan tasks, track progress, and coordinate development.
+              This did make us fear doing mistakes, but mistakes are not bad, lazy is. We had to find, plan, and divide work between each other evenly, with deadlines.
             </p>
             <p>
-              Through the project, I gained practical experience in software architecture, object-oriented programming, version control, testing, collaborative development, and working in an Agile/Scrum environment.
+              We built FoodPal, an all-in-one distributed cooking organizer, for the Collaborative Software Engineering Project at TU Delft. It is a client / server app, with no user system. You can keep recipes, ingredients, and shopping lists in one place.
+            </p>
+            <p>
+              We used weekly Scrum to plan the tasks and split the work. I got practice with software architecture, object-oriented programming, version control, and testing.
+            </p>
+          </HalfPost>
+
+          <HalfPost
+            title="cit cat coe"
+            date="Dec 2023"
+            links={<SliceLink href="https://github.com/v1nc3t/cit-cat-coe">github</SliceLink>}
+          >
+            <p>
+              a cat themed tic tac toe game. the first personal project with a cat name, and the ones after followed.
+              written in c++ and using the SDL2 library for graphical rendering.
+            </p>
+            <p>
+              i started out this project with no experience, just started coding.
+              big mistake. after many refactorings, not knowing what i wrote because i didn't use comments, i didn't exactly give up, but more that i forgot about it and abandoned it.
+            </p>
+            <p>
+              after learning about architectural patterns and design patterns, i realised how stupid i was before, and with a little bit of time allocated to designing and planning, i could have finished this in a weekend.
+              but everything we do is for a reason, and for me this project made me realise the importance of planning.
             </p>
           </HalfPost>
         </section>
