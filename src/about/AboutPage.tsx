@@ -62,7 +62,7 @@ const AVATAR = `
 type Tab = (typeof TABS)[number]
 
 export function AboutPage() {
-  const [tab, setTab] = useState<Tab>('history')
+  const [tab, setTab] = useState<Tab>('about me')
   const [nameOpen, setNameOpen] = useState(false)
   const [emailOpen, setEmailOpen] = useState(false)
 
@@ -344,30 +344,75 @@ function AboutLink({ href, children }: { href: string; children: ReactNode }) {
 
 function AboutMePanel() {
   return (
-    <div className="scrollbar-line flex h-full flex-col gap-3 overflow-auto p-4 leading-relaxed text-white">
-      <p>
-        hey, this is my personal website, with things i enjoy. i spend most of my time building software. the rest goes to photography, cooking, and music.
-      </p>
-      <p>
-        i was watching youtube one day and saw a video pop up on my page by <AboutLink href="https://www.youtube.com/@onionboots">onionboots</AboutLink> about a <AboutLink href="https://www.youtube.com/watch?v=tkUgOT22F5s&t=490s">web revival</AboutLink>. it instantly captivated my attention. after watching it i had so many ideas, and couldn't think of which to choose. up until now i was brainwashed to think that websites with crazy visuals or single scroll pages were above all.
-      </p>
-      <p>
-        i lost the plot. the most important thing is whether you like it or not. websites should be created to fit your preferences, not some fancy standards. and this is what i found on the sites listed on neocities. going through them was eye-opening: so many websites people made, different layouts, styles, and aesthetics.
-      </p>
-      <p>
-        i was planning on creating a site of my own for a while, but i didn't have inspiration, not until i saw that video. surfing through the interconnected web, i was able to get inspiration from everywhere (the sites i took inspiration from are listed in links).
-      </p>
-      <p>
-        the theme i've always liked was a retro one, that revolves around ascii (words, images, art). retro, but a minimalistic retro. no flashy colors or images, just simplicity.
-      </p>
-      <p>
-        if you haven't checked out my projects yet (also on <AboutLink href="https://github.com/v1nc3t/">github</AboutLink>), all of them have cat themed names. this started in highschool, when i made a tic tac toe game in c++ and called it cit cat coe. from that point onwards, only cat themed projects (personal ones only, sadly).
-      </p>
-      <p>
-        i do photography, and i got tired of posting pictures on instagram. it felt like it was more for the likes than the photos themselves. you can go to the photography page and check them out, and not "like" them.
-      </p>
-      <p>enjoy the site, and try to find the easter eggs i scattered around.</p>
+    <div className="scrollbar-line flex h-full flex-col overflow-auto p-4 leading-relaxed text-white">
+      <Qa q="what is this?" first>
+        <p>
+          this is a personal site. it starts in a terminal, and the pages open as their own windows: about, projects, and photos.
+        </p>
+        <p>
+          most of my time goes to building software. the rest is photography, cooking, and music, along with movies, tv shows, anime, and manga.
+        </p>
+      </Qa>
+      <Qa q="how did it start?">
+        <p>
+          i saw a video by <AboutLink href="https://www.youtube.com/@onionboots">onionboots</AboutLink> about a <AboutLink href="https://www.youtube.com/watch?v=tkUgOT22F5s&t=490s">web revival</AboutLink>: people making small sites of their own again, instead of only posting on large platforms.
+        </p>
+        <p>
+          that gave me a few ideas. before it, i mostly thought a website had to have strong visuals, or be one long scrolling page.
+        </p>
+      </Qa>
+      <Qa q="what changed?">
+        <p>
+          the part i kept is that a site can fit the person who made it. it does not have to follow one layout.
+        </p>
+        <p>
+          on neocities there are a lot of personal sites, each with its own layout, style, and aesthetic. that range is what i was looking through.
+        </p>
+      </Qa>
+      <Qa q="why this look?">
+        <p>
+          i had wanted a site for a while, and that video is what got me to start. the sites i took ideas from are listed in links.
+        </p>
+        <p>
+          the look is retro and built from ascii: text, small drawings, and simple art. the projects page is set out like a newspaper. it stays minimal, without bright colors or large images.
+        </p>
+      </Qa>
+      <Qa q="why the cat names?">
+        <p>
+          personal projects use cat names. the code is on <AboutLink href="https://github.com/v1nc3t/">github</AboutLink>. school work does not follow the same rule.
+        </p>
+        <p>
+          it started in highschool with cit cat coe, a tic tac toe game in c++. the name is a play on tic tac toe. later personal projects kept a cat in the name, such as meowDFer and nyatching-list.
+        </p>
+      </Qa>
+      <Qa q="what about the photos?">
+        <p>
+          i take photos with a canon eos 2000d and a sony cyber-shot dsc-s650. i wanted them on a page of their own, not only on instagram.
+        </p>
+        <p>
+          they are on the photography page. there is no like button. the photos are just there to look at.
+        </p>
+      </Qa>
+      <Qa q="anything else?">
+        <p>
+          a few small things are hidden around the site. they are not labeled, so they are there to find.
+        </p>
+      </Qa>
     </div>
+  )
+}
+
+function Qa({ q, first = false, children }: { q: string; first?: boolean; children: ReactNode }) {
+  return (
+    <section className="flex flex-col gap-2">
+      {first ? null : (
+        <p aria-hidden className="m-0 min-w-0 overflow-hidden py-3 whitespace-nowrap tracking-[0.45em] text-white/35">
+          {'-'.repeat(80)}
+        </p>
+      )}
+      <h3 className="m-0 font-normal text-white/55">{q}</h3>
+      {children}
+    </section>
   )
 }
 
