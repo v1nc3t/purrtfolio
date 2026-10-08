@@ -71,10 +71,13 @@ export function ProjectsPage() {
 
       <p className="mt-6 mb-0 border-b border-rule pb-5 text-center leading-relaxed">
         <p>
-          welcome to my project archive, styled like a newspaper, designed with ascii charaters, and themed around cats. here you can find software, tools and side-projects i have either built or worked on.
+          welcome to my project archive blog, where i want to write about the activites i attended and the projects i work on, and my thoughts about them. 
+          here you can find software, tools and side-projects i have either built or worked on.
+          styled like a newspaper, designed with ascii charaters, and themed around cats.
         </p>
         <p>
-          i did come across a cool website that inspired me for this design: {' '} <SliceLink href="https://eduardoboucas.com/">eduardoboucas.com</SliceLink>
+          i did come across a cool website that inspired me for this design: 
+          {' '} <SliceLink href="https://eduardoboucas.com/">eduardoboucas.com</SliceLink>
         </p>
       </p>
 
@@ -86,16 +89,19 @@ export function ProjectsPage() {
             date='13 Sep 2026'
           >
             <p>
-              With a some friends I took part in a robotics hackathon, 
-              where we had to build a robot, from scratch, that can carry a small payload and drop it.
+              With a some friends I took part in an intro to robotics hackathon, you didn't need any prior knowledge for enlist.
+              We had to build a robot, from scratch, that can carry a small payload and drop it.
+              We given a small crash course on the basics in robotics, how a circuit works, basic components like: servo, dc, and stepper motors
             </p>
             <p>
               With no background or knowledge in robotics, we build a robot, programmed it, and drove it to a close call onto the podium.
-              I enjoyed it a lot, working together, designing, debugging, and building.    
+              I enjoyed it a lot, working together, designing, debugging, and building.
             </p>
             <p>
-              The competition consisted in driving the robot on a multi-story course made of wood, collecting miniture ducks from droppers and bringging them back to a box.
-              I did feel a little sad not winnig, but because I had so mcuh fun that I didn't even mind.
+              The competition consisted in driving the robot on a multi-story course made of wood, 
+              collecting miniture ducks from droppers and bringging them back to a box.
+              We played two rounds, against 3 teams, with 9 minutes on the clock. 
+              I didn't even feel sad not winnig, but only because I had so much fun building and coding it.
             </p>
           </FullPost>
 
@@ -103,7 +109,7 @@ export function ProjectsPage() {
             title="Watchlist for not forgetting shows"
             date="Summer 2026"
             figure={FIGURE_NYATCHING}
-            image="right"
+            image="left"
             links={
               <>
                 <SliceLink href="https://chromewebstore.google.com/detail/nyatching-list/lfclngikmpcnhmgmakapkcmlpkbgjcna">chrome store</SliceLink>
@@ -117,12 +123,22 @@ export function ProjectsPage() {
               Have you finished a season and never got reminded a new season is out?
             </p>
             <p>
-              Well this web extention fixes that exact problem. You can add a show directly from <SliceLink href="https://www.imdb.com/">IMDB</SliceLink> through the pop up,
+              Well this web extention fixes that exact problem. You can add a show directly from 
+              <SliceLink href="https://www.imdb.com/">IMDB</SliceLink> through the pop up,
               set your progress, and even get reminders about new seasons or episodes.
+              You can set the time intervals at which you get the notifications
+            </p>
+            <p>
+              Organise you media based in the status they have: watching, waiting, next up, completed, and dropeed.
+              For the aesthetics, i have two viewing modes: tile and list view. And there is dark and light mode. 
+            </p>
+            <p>
+              It is available for both chrome and firefox. It is also available for firefox mobile, on android.
+              (sadly IOS deos not suppot extentions in firefox mobile)  
             </p>
           </FullPost>
 
-          <HalfPost
+          <FullPost
             title="Build a CLI tool for manga"
             date='Spring 2026'
             links={
@@ -130,32 +146,88 @@ export function ProjectsPage() {
             }
           >
             <p>
-              I had a problem, whenever I downloaded manga, through legal means ;), they would come in compressed folders of chapters, having a .png with each page.
+              I had a problem, whenever I downloaded manga, through legal means ;), 
+              they would come in compressed folders of chapters, having a .png with each page.
               So I wanted to automate the process of extracting and compiling into chapter PDFs. 
             </p>
             <p>
-              I used python, since it was easy to use and had helpful libraries. 
-              I did add some features along the way, such as a web scraper that finds the chapter ranges for volumes of the manga given a link from wikipedia or fandom.com.
-              So the PDFs of chapters can be merged into volume PDFs.
+              I used python, since it was easy to use and had helpful libraries.
+              There are 3 main commands: extract, convert, and merge.
+              Extract multiple compressed files.
+              Convert chapter folders into PDFs files.
+              Merge chapter PDFs into volume PDFs using a chapter range file.
             </p>
-
-          </HalfPost>
+            <p>
+              There is one more feature, a web scraper that when given a link from wikipedia or fandom.com of the manga.
+              It extract the volume range and creates the file that is used for the merge step.
+            </p>
+            <p>
+              It is docker compatible, and there is a script that does the download for you.
+            </p>
+          </FullPost>
 
           <HalfPost
             title="Participated in an AI Hackathon"
             date='2 May 2026'
           >
             <p>
-              I was incouraged by a friend to participate in a hackathon. Wans't
+              I was encouraged by a friend to participate in a hackathon. Wasn't
               sure at first but I gave in, with the excuse of trying it at least
-              once. The experience was not bad, but not writting a single line of
-              code for 12h, prompting everything to an AI and sitting back took
+              once. The experience was not bad, but not writing a single line of
+              code for 12h, prompting everything to an AI and sitting back, took
               the fun out of it.
             </p>
             <p>
-              Much of the day was spent sitting, talking and comming up with
+              Much of the day was spent sitting, talking and coming up with
               ideas. At a certain point I was feeling very bored, but I did get
               experience working in a team and free snacks :)
+            </p>
+            <p>
+              The problem we had to solve was very vague and not an intriguing one.
+              We had to solve the lack of feedback between landlords and people who are trying to find an apartment.
+              Solving this could be done in various ways, but the idea had to be applied easily, not migrating from existing systems but integrating with them.
+            </p>
+            <p>
+              For me the worst part was that your idea had to be monetizable, make money somehow. That was the big criteria for it. I lean toward more of the open source part of software.
+              I am quite annoyed by the SaaS (software as a service) philosophy. Just wanting to use simple tools and getting hit with a paywall, or even worse, buying software and not owning it.
+              Bring back the good old days, where you could use software without paying monthly for it.
+            </p>
+            <p>
+              p.s. placed fourth in this one
+            </p>
+          </HalfPost>
+
+          <HalfPost title="CSEP project" date="Nov 2025">
+            <p>
+              This was my first proper group project ever. I have worked in teams before in highschool, but 2 people would do all the work and the others sit back and relax, even teachers would not do anything about it. Until this project, where we had to work, and would be penalized if not.
+            </p>
+            <p>
+              This did make us fear doing mistakes, but mistakes are not bad, lazy is. We had to find, plan, and divide work between each other evenly, with deadlines.
+            </p>
+            <p>
+              We built FoodPal, an all-in-one distributed cooking organizer, for the Collaborative Software Engineering Project at TU Delft. It is a client / server app, with no user system. You can keep recipes, ingredients, and shopping lists in one place.
+            </p>
+            <p>
+              We used weekly Scrum to plan the tasks and split the work. I got practice with software architecture, object-oriented programming, version control, and testing.
+            </p>
+          </HalfPost>
+
+          <HalfPost
+            title="cit cat coe"
+            date="Dec 2023"
+            links={<SliceLink href="https://github.com/v1nc3t/cit-cat-coe">github</SliceLink>}
+          >
+            <p>
+              a cat themed tic tac toe game. the first personal project with a cat name, and the ones after followed.
+              written in c++ and using the SDL2 library for graphical rendering.
+            </p>
+            <p>
+              i started out this project with no experience, just started coding.
+              big mistake. after many refactorings, not knowing what i wrote because i didn't use comments, i didn't exactly give up, but more that i forgot about it and abandoned it.
+            </p>
+            <p>
+              after learning about architectural patterns and design patterns, i realised how stupid i was before, and with a little bit of time allocated to designing and planning, i could have finished this in a weekend.
+              but everything we do is for a reason, and for me this project made me realise the importance of planning.
             </p>
           </HalfPost>
         </section>

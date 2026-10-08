@@ -103,6 +103,7 @@ export const Window = memo(function Window({ id, children }: WindowProps) {
     options: { focusOnClick: boolean },
   ) {
     const store = useCanvasStore.getState()
+    if (store.maximized[id]) return
     const current = store.windows[id]
     const workspace = workspaceOf(event.currentTarget)
     if (!current || !workspace) return
@@ -215,7 +216,7 @@ export const Window = memo(function Window({ id, children }: WindowProps) {
         transform: `translate3d(${frame.x}px, ${frame.y}px, 0)`,
       }}
       className={`window-frame absolute top-0 left-0 ${
-        overview ? 'cursor-grab' : ''
+        overview && !maximized ? 'cursor-grab' : ''
       } ${dragging ? 'cursor-grabbing' : ''}`}
     >
       <div
@@ -224,7 +225,9 @@ export const Window = memo(function Window({ id, children }: WindowProps) {
         }`}
       >
         <header
-          className={`window-header shrink-0 cursor-grab touch-none select-none active:cursor-grabbing ${
+          className={`window-header shrink-0 touch-none select-none ${
+            maximized ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
+          } ${
             paper
               ? 'window-header-paper grid grid-cols-[1fr_auto_1fr] items-center py-1 font-mono leading-none'
               : 'flex items-center py-1.5'

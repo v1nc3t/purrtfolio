@@ -2,6 +2,7 @@ import { useEffect, type RefObject } from 'react'
 import { isTypingHotkeyTarget } from '../shared/hotkeys'
 import { screenPoint } from './camera'
 import { panGesture } from './panGesture'
+import { useSettings } from '../shared/settings'
 import { useCanvasStore } from './useCanvasStore'
 
 const ZOOM_INTENSITY = 0.0016
@@ -39,6 +40,7 @@ export function useCanvasCamera(containerRef: RefObject<HTMLElement | null>) {
       const panModifier = isPanModifier(event)
       if (onWindow && !panModifier) return
       if (!panModifier && event.button !== 0) return
+      if (useSettings.getState().calm && panModifier) return
 
       dragging = true
       moved = false
@@ -62,8 +64,10 @@ export function useCanvasCamera(containerRef: RefObject<HTMLElement | null>) {
           return
         }
         moved = true
-        canvas.dataset.panning = 'true'
+        if (!useSettings.getState().calm) canvas.dataset.panning = 'true'
       }
+
+      if (useSettings.getState().calm) return
 
       useCanvasStore
         .getState()
