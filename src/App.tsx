@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { CookieNotice } from './shared/CookieNotice'
 import { MouseTrail } from './shared/MouseTrail'
 import { WelcomePage } from './welcome/WelcomePage'
 import { Workspace } from './workspace/Workspace'
@@ -15,6 +16,7 @@ function App() {
   return (
     <>
       <MouseTrail />
+      <CookieNotice />
       {username ? (
         <Workspace username={username} />
       ) : (
