@@ -167,6 +167,8 @@ const BRANCH_COLOR: Record<string, string> = {
   meowDFer: '#fe8019',
   'nyatching-list': '#d3869b',
   'cit cat coe': '#b8bb26',
+  meowNY: '#b16286',
+  purrtfolio: '#fb4934',
 }
 
 function HistoryLine({ row, headRef }: { row: HistoryRow; headRef?: Ref<HTMLSpanElement> }) {
