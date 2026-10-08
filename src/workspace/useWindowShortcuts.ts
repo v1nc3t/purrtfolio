@@ -6,7 +6,7 @@ import {
   type HotkeyAction,
   type HotkeyMap,
 } from '../shared/hotkeys'
-import { useCanvasStore } from './useCanvasStore'
+import { useCanvasStore, type WindowId } from './useCanvasStore'
 
 const OVERVIEW_ARROWS: Record<string, HotkeyAction> = {
   ArrowLeft: 'focusLeft',
@@ -23,13 +23,22 @@ function dispatchHotkey(action: HotkeyAction) {
       if (store.focusedId) store.close(store.focusedId)
       return
     case 'overview':
+      if (store.fullscreen) {
+        const id = Object.keys(store.maximized)[0] as WindowId | undefined
+        if (id) store.maximize(id)
+      }
       store.toggleOverview()
       return
+    case 'fullscreen':
+      if (store.focusedId) store.maximize(store.focusedId)
+      return
     case 'focusLeft':
-      store.focusDirection('left')
+      if (store.fullscreen) store.focusTab(-1)
+      else store.focusDirection('left')
       return
     case 'focusRight':
-      store.focusDirection('right')
+      if (store.fullscreen) store.focusTab(1)
+      else store.focusDirection('right')
       return
     case 'focusUp':
       store.focusDirection('up')

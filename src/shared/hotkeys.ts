@@ -7,6 +7,7 @@ export type HotkeyAction =
   | 'focusDown'
   | 'overviewExit'
   | 'overviewSelect'
+  | 'fullscreen'
 
 export type KeyBind = {
   alt?: boolean
@@ -22,6 +23,7 @@ export type HotkeyMap = Record<HotkeyAction, readonly KeyBind[]>
 export const WINDOW_HOTKEYS: HotkeyMap = {
   close: [{ alt: true, code: 'KeyQ' }],
   overview: [{ alt: true, code: 'KeyO' }],
+  fullscreen: [{ alt: true, code: 'KeyF' }],
   focusLeft: [
     { alt: true, key: 'ArrowLeft' },
     { alt: true, code: 'KeyH' },
@@ -45,8 +47,10 @@ export const WINDOW_HOTKEYS: HotkeyMap = {
 export const SHORTCUT_HELP = [
   'close      alt+q',
   'overview   alt+o',
+  'fullscreen alt+f',
   'focus      alt+arrows',
-  'pan        drag / alt+drag',
+  'tabs       alt+left/right',
+  'pan        drag/alt+drag',
   'zoom       alt+wheel',
 ] as const
 

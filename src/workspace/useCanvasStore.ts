@@ -40,6 +40,7 @@ type CanvasStore = {
   order: WindowId[]
   minimized: WindowId[]
   maximized: Partial<Record<WindowId, SavedFrame>>
+  fullscreen: boolean
   focusedId: WindowId | null
   isOverviewMode: boolean
   camera: Camera
@@ -53,6 +54,7 @@ type CanvasStore = {
   focus: (id: WindowId) => void
   focusOnWindow: (id: WindowId) => void
   focusDirection: (direction: Direction) => void
+  focusTab: (step: number) => void
   panCamera: (deltaX: number, deltaY: number) => void
   zoomCamera: (zoomDelta: number, focusPointX: number, focusPointY: number) => void
   unlockCamera: () => void
@@ -68,7 +70,7 @@ type CanvasStore = {
 const TITLES: Record<WindowId, string> = {
   terminal: 'terminal',
   about: 'about',
-  projects: 'purr times - project archive',
+  projects: 'purr times - projects',
   photos: 'photos',
 }
 
@@ -132,6 +134,28 @@ function frameCamera(frame: WindowFrame, viewport: Viewport, maximized: boolean)
   return maximized
     ? fillCamera(frame, viewport)
     : boundCamera(cameraFocusingWindow(frame, viewport), viewport)
+}
+
+function withFullscreen(
+  windows: Partial<Record<WindowId, WindowFrame>>,
+  maximized: Partial<Record<WindowId, SavedFrame>>,
+  id: WindowId,
+  viewport: Viewport,
+) {
+  if (maximized[id]) return { windows, maximized }
+  const nextWindows = { ...windows }
+  const nextMaximized = { ...maximized }
+  for (const other of Object.keys(nextMaximized) as WindowId[]) {
+    const saved = nextMaximized[other]
+    const otherFrame = nextWindows[other]
+    if (saved && otherFrame) nextWindows[other] = { ...otherFrame, ...saved }
+    delete nextMaximized[other]
+  }
+  const frame = nextWindows[id]
+  if (!frame) return { windows, maximized }
+  nextMaximized[id] = { x: frame.x, y: frame.y, width: frame.width, height: frame.height }
+  nextWindows[id] = maximizedFrame(frame, viewport)
+  return { windows: nextWindows, maximized: nextMaximized }
 }
 
 function maximizedFrame(frame: WindowFrame, viewport: Viewport): WindowFrame {
@@ -222,6 +246,7 @@ function createInitialState() {
     order: ['terminal'] as WindowId[],
     minimized: [] as WindowId[],
     maximized: {} as Partial<Record<WindowId, SavedFrame>>,
+    fullscreen: false,
     focusedId: 'terminal' as WindowId,
     isOverviewMode: false,
     camera: boundCamera(cameraFocusingWindow(terminal, viewport), viewport),
@@ -284,6 +309,8 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
 
     if (nextFocus && (focusedId === id || isOverviewMode)) {
       get().focusOnWindow(nextFocus)
+    } else if (!nextFocus) {
+      set({ fullscreen: false })
     }
   },
 
@@ -325,43 +352,42 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     })
     const nextFocus = get().focusedId
     if (focusedId === id && nextFocus) get().focusOnWindow(nextFocus)
-    else if (!nextFocus) set({ cameraLocked: false })
+    else if (!nextFocus) set({ cameraLocked: false, fullscreen: false })
   },
 
   maximize: (id) => {
-    const { windows, viewport, maximized, minimized } = get()
+    const { windows, maximized, fullscreen } = get()
     const frame = windows[id]
     if (!frame) return
 
-    const nextMinimized = minimized.filter((item) => item !== id)
-    if (maximized[id]) {
+    if (fullscreen && maximized[id]) {
       const nextMaximized = { ...maximized }
       delete nextMaximized[id]
       set({
-        windows: { ...windows, [id]: { ...frame, ...maximized[id] } },
+        fullscreen: false,
         maximized: nextMaximized,
-        minimized: nextMinimized,
+        windows: { ...windows, [id]: { ...frame, ...maximized[id] } },
       })
       get().focusOnWindow(id)
       return
     }
 
-    set({
-      windows: { ...windows, [id]: maximizedFrame(frame, viewport) },
-      maximized: {
-        ...maximized,
-        [id]: { x: frame.x, y: frame.y, width: frame.width, height: frame.height },
-      },
-      minimized: nextMinimized,
-    })
+    set({ fullscreen: true })
     get().focusOnWindow(id)
   },
 
   focusOnWindow: (id) => {
-    const { windows, viewport, focusedId, minimized, maximized } = get()
+    let { windows, viewport, focusedId, minimized, maximized, fullscreen } = get()
+    if (!windows[id]) return
+
+    if (fullscreen) {
+      const applied = withFullscreen(windows, maximized, id, viewport)
+      windows = applied.windows
+      maximized = applied.maximized
+    }
+
     const frame = windows[id]
     if (!frame) return
-
     const zIndex = focusedId === id ? frame.zIndex : nextZ(windows)
     const camera = frameCamera(frame, viewport, Boolean(maximized[id]))
     set({
@@ -369,6 +395,8 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
       isOverviewMode: false,
       cameraLocked: true,
       cameraBeforeOverview: null,
+      fullscreen,
+      maximized,
       minimized: minimized.filter((item) => item !== id),
       windows: {
         ...windows,
@@ -384,6 +412,15 @@ export const useCanvasStore = create<CanvasStore>((set, get) => ({
     const frames = framesOf(windows).filter((frame) => !minimized.includes(frame.id))
     const nextId = pickWindowInDirection(frames, focusedId, direction)
     if (nextId) get().focusOnWindow(nextId as WindowId)
+  },
+
+  focusTab: (step) => {
+    const { order, focusedId } = get()
+    if (!focusedId || order.length < 2) return
+    const index = order.indexOf(focusedId)
+    if (index < 0) return
+    const next = order[(index + step + order.length) % order.length]
+    get().focusOnWindow(next)
   },
 
   panCamera: (deltaX, deltaY) => {

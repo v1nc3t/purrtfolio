@@ -122,18 +122,23 @@ const GridSpots = memo(function GridSpots() {
 })
 
 function Taskbar() {
+  const order = useCanvasStore(useShallow((state) => state.order))
   const minimized = useCanvasStore(useShallow((state) => state.minimized))
+  const focusedId = useCanvasStore((state) => state.focusedId)
   const windows = useCanvasStore((state) => state.windows)
 
   return (
-    <div className="taskbar" aria-label="taskbar">
-      {minimized.map((id) => (
+    <div className="taskbar" role="tablist" aria-label="taskbar">
+      {order.map((id) => (
         <button
           key={id}
           type="button"
+          role="tab"
+          aria-selected={focusedId === id}
+          data-minimized={minimized.includes(id) ? 'true' : 'false'}
           onClick={() => useCanvasStore.getState().focusOnWindow(id)}
         >
-          {windows[id]?.title ?? id}
+          {id}
         </button>
       ))}
     </div>
