@@ -125,7 +125,6 @@ function Taskbar() {
   const order = useCanvasStore(useShallow((state) => state.order))
   const minimized = useCanvasStore(useShallow((state) => state.minimized))
   const focusedId = useCanvasStore((state) => state.focusedId)
-  const windows = useCanvasStore((state) => state.windows)
 
   return (
     <div className="taskbar" role="tablist" aria-label="taskbar">

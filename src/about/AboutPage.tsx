@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode, type Ref } from 'react'
 import { useSettings } from '../shared/settings'
+import { getAboutTab, setAboutTab, subscribeAboutTab } from '../workspace/routes'
 import { useCanvasStore } from '../workspace/useCanvasStore'
 import { historyRows, historySummary, type HistoryName, type HistoryRow } from './historyGraph'
 
@@ -62,7 +63,9 @@ const AVATAR = `
 type Tab = (typeof TABS)[number]
 
 export function AboutPage() {
-  const [tab, setTab] = useState<Tab>('about me')
+  const [tab, setTab] = useState<Tab>(getAboutTab)
+
+  useEffect(() => subscribeAboutTab(() => setTab(getAboutTab())), [])
   const [nameOpen, setNameOpen] = useState(false)
   const [emailOpen, setEmailOpen] = useState(false)
 
@@ -130,7 +133,7 @@ export function AboutPage() {
                 id={`about-tab-${id}`}
                 aria-controls={`about-panel-${id}`}
                 aria-selected={selected}
-                onClick={() => setTab(id)}
+                onClick={() => setAboutTab(id)}
                 className={`cursor-pointer border-r border-white/16 px-3 py-2 tracking-[0.14em] ${
                   selected ? 'text-white' : 'text-white/40'
                 }`}
