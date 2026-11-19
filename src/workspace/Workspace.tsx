@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, type CSSProperties, type ReactNode } from 'react'
+import { memo, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { AboutPage } from '../about/AboutPage'
 import { ProjectsPage } from '../projects/ProjectsPage'
@@ -34,92 +34,64 @@ const WindowBody = memo(function WindowBody({
   }
 })
 
-const GridLines = memo(function GridLines() {
+const Backdrop = memo(function Backdrop() {
   const viewport = useCanvasStore((state) => state.viewport)
-  const world = worldRect(windowSizeFor(viewport))
-
-  return (
-    <svg
-      aria-hidden
-      className="pointer-events-none absolute"
-      style={{ left: world.x, top: world.y, width: world.width, height: world.height }}
-    >
-      <defs>
-        <pattern
-          id="canvas-grid"
-          width="48"
-          height="48"
-          patternUnits="userSpaceOnUse"
-          x={-world.x}
-          y={-world.y}
-        >
-          <path className="canvas-grid-line" d="M48 0 H0 V48" />
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#canvas-grid)" opacity="0.12" />
-    </svg>
-  )
-})
-
-const GridSpots = memo(function GridSpots() {
   const windows = useCanvasStore((state) => state.windows)
   const order = useCanvasStore((state) => state.order)
   const minimized = useCanvasStore((state) => state.minimized)
-
-  return order.map((id) => {
-    if (minimized.includes(id)) return null
+  const flashlight = useSettings((state) => state.flashlight)
+  // tile doubles as the camera zooms out, so grid lines stay about 1 screen px wide
+  const tile = useCanvasStore((state) => 48 * 2 ** Math.max(0, Math.floor(Math.log2(1 / state.camera.scale))))
+  const world = worldRect(windowSizeFor(viewport))
+  const layer: CSSProperties = {
+    left: world.x,
+    top: world.y,
+    width: world.width,
+    height: world.height,
+    backgroundImage: 'url(/canvas-bg.svg)',
+    backgroundSize: `${tile}px ${tile}px`,
+    backgroundPosition: `${-world.x}px ${-world.y}px`,
+  }
+  // one radial gradient per visible window, masks add up
+  const spots = order.flatMap((id) => {
     const frame = windows[id]
-    if (!frame) return null
+    if (!frame || minimized.includes(id)) return []
     const radius =
       Math.hypot(frame.width, frame.height) / 2 +
       Math.min(frame.width, frame.height) * 0.1
-    const size = radius * 2
-    const left = frame.x + frame.width / 2 - radius
-    const top = frame.y + frame.height / 2 - radius
-    return (
-      <svg
-        key={id}
-        aria-hidden
-        className="pointer-events-none absolute"
-        style={{ left, top, width: size, height: size }}
-      >
-        <defs>
-          <pattern
-            id={`canvas-spot-${id}`}
-            width="48"
-            height="48"
-            patternUnits="userSpaceOnUse"
-            x={-left}
-            y={-top}
-          >
-            <path className="canvas-grid-line" d="M48 0 H0 V48" />
-          </pattern>
-          <radialGradient
-            id={`canvas-flash-${id}`}
-            gradientUnits="userSpaceOnUse"
-            cx={radius}
-            cy={radius}
-            r={radius}
-          >
-            <stop offset="0%" stopColor="white" />
-            <stop offset="68%" stopColor="white" />
-            <stop offset="100%" stopColor="black" />
-          </radialGradient>
-          <mask id={`canvas-flash-mask-${id}`} maskUnits="userSpaceOnUse">
-            <circle cx={radius} cy={radius} r={radius} fill={`url(#canvas-flash-${id})`} />
-          </mask>
-        </defs>
-        <rect
-          width={size}
-          height={size}
-          fill={`url(#canvas-spot-${id})`}
-          opacity="0.25"
-          mask={`url(#canvas-flash-mask-${id})`}
-        />
-      </svg>
-    )
+    const x = frame.x + frame.width / 2 - world.x
+    const y = frame.y + frame.height / 2 - world.y
+    return [`radial-gradient(circle ${radius}px at ${x}px ${y}px, #000 68%, transparent 100%)`]
   })
+  const mask = spots.join(', ')
+
+  return (
+    <>
+      <div aria-hidden className="pointer-events-none absolute opacity-40" style={layer} />
+      {flashlight && spots.length > 0 ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute"
+          style={{ ...layer, maskImage: mask, WebkitMaskImage: mask }}
+        />
+      ) : null}
+    </>
+  )
 })
+
+const clockText = () =>
+  new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+
+function Clock() {
+  const [time, setTime] = useState(clockText)
+
+  useEffect(() => {
+    const id = window.setInterval(() => setTime(clockText()), 1_000)
+    return () => window.clearInterval(id)
+  }, [])
+
+  return <span className="taskbar-tray">{time}</span>
+}
 
 function Taskbar() {
   const order = useCanvasStore(useShallow((state) => state.order))
@@ -140,6 +112,7 @@ function Taskbar() {
           {id}
         </button>
       ))}
+      <Clock />
     </div>
   )
 }
@@ -150,12 +123,9 @@ function CanvasWorld({ children }: { children: ReactNode }) {
   return (
     <div
       className="absolute top-0 left-0 origin-top-left"
-      style={
-        {
-          transform: `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`,
-          '--cam-scale': camera.scale,
-        } as CSSProperties
-      }
+      style={{
+        transform: `translate3d(${camera.x}px, ${camera.y}px, 0) scale(${camera.scale})`,
+      }}
     >
       {children}
     </div>
@@ -197,12 +167,7 @@ export function Workspace({ username }: WorkspaceProps) {
       <span className="sr-only">signed in as {username}</span>
       <Taskbar />
       <CanvasWorld>
-        {calm ? null : (
-          <>
-            <GridLines />
-            <GridSpots />
-          </>
-        )}
+        {calm ? null : <Backdrop />}
         {openIds.filter((id) => !minimized.includes(id)).map((id) => (
           <Window key={id} id={id}>
             <WindowBody id={id} username={username} />

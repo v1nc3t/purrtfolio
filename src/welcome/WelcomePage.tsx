@@ -83,7 +83,7 @@ export function WelcomePage({ onSubmit }: WelcomePageProps) {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center bg-terminal-bg">
+    <main className="flex min-h-svh items-center justify-center bg-desk">
       <form onSubmit={handleSubmit}>
         <div className="relative font-mono text-4xl">
           <input

@@ -2,12 +2,16 @@ import { create } from 'zustand'
 
 type SettingsState = {
   calm: boolean
+  flashlight: boolean
+  overlap: boolean
   trail: boolean
   trailOverWindows: boolean
   trailLength: number
   trailDelay: number
   cookies: 'unknown' | 'yes' | 'no'
   setCalm: (value: boolean) => void
+  setFlashlight: (value: boolean) => void
+  setOverlap: (value: boolean) => void
   setTrail: (value: boolean) => void
   setTrailOverWindows: (value: boolean) => void
   setTrailLength: (value: number) => void
@@ -21,7 +25,7 @@ const SETTINGS = 'purrtfolio.settings'
 const REJECTED = 'purrtfolio.cookies'
 const YEAR = 60 * 60 * 24 * 365
 
-type Saved = Partial<Pick<SettingsState, 'calm' | 'trail' | 'trailOverWindows' | 'trailLength' | 'trailDelay'>>
+type Saved = Partial<Pick<SettingsState, 'calm' | 'flashlight' | 'overlap' | 'trail' | 'trailOverWindows' | 'trailLength' | 'trailDelay'>>
 
 function readCookie(name: string) {
   if (typeof document === 'undefined') return null
@@ -71,6 +75,8 @@ const saved = readSaved(cookies)
 function snapshot(state: SettingsState): Saved {
   return {
     calm: state.calm,
+    flashlight: state.flashlight,
+    overlap: state.overlap,
     trail: state.trail,
     trailOverWindows: state.trailOverWindows,
     trailLength: state.trailLength,
@@ -80,12 +86,16 @@ function snapshot(state: SettingsState): Saved {
 
 export const useSettings = create<SettingsState>((set) => ({
   calm: Boolean(saved.calm),
+  flashlight: saved.flashlight !== false,
+  overlap: Boolean(saved.overlap),
   trail: saved.trail !== false,
   trailOverWindows: Boolean(saved.trailOverWindows),
   trailLength: clamp(saved.trailLength, 16, 120, 72),
   trailDelay: clamp(saved.trailDelay, 1, 10, 3),
   cookies,
   setCalm: (calm) => set({ calm }),
+  setFlashlight: (flashlight) => set({ flashlight }),
+  setOverlap: (overlap) => set({ overlap }),
   setTrail: (trail) => set({ trail }),
   setTrailOverWindows: (trailOverWindows) => set({ trailOverWindows }),
   setTrailLength: (trailLength) => set({ trailLength }),

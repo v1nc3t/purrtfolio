@@ -22,6 +22,7 @@ const PROJECTS: readonly Span[] = [
   { name: 'meowNY', start: [2026, 5], from: 'main' },
   { name: 'nyatching-list', start: [2026, 7], end: [2026, 8], link: true, from: 'main' },
   { name: 'purrtfolio', start: [2026, 9], from: 'main' },
+  { name: 'smart avatar internship', start: [2026, 11], from: 'main' },
 ]
 
 const POINTERS = [
