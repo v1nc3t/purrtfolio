@@ -122,7 +122,7 @@ export function AboutPage() {
         </div>
       </aside>
       <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div role="tablist" aria-label="about" className="flex shrink-0 gap-px border-b border-chrome-hi px-2 pt-2">
+        <div role="tablist" aria-label="about" className="flex shrink-0 gap-6 border-b border-white/25 px-4">
           {TABS.map((id) => {
             const selected = tab === id
             return (
@@ -134,10 +134,8 @@ export function AboutPage() {
                 aria-controls={`about-panel-${id}`}
                 aria-selected={selected}
                 onClick={() => setAboutTab(id)}
-                className={`cursor-pointer rounded-t-[3px] border border-b-0 border-chrome-hi border-r-chrome-lo px-4 font-ui text-xs ${
-                  selected
-                    ? '-mb-px bg-terminal-bg py-2 text-text'
-                    : 'mt-0.5 bg-chrome py-1.5 text-muted hover:text-text'
+                className={`-mb-px cursor-pointer border-b-2 py-2 font-ui text-xs ${
+                  selected ? 'border-white text-white' : 'border-transparent text-white/60 hover:text-white'
                 }`}
               >
                 {id}
