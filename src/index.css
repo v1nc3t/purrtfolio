@@ -12,11 +12,8 @@
   --color-chrome-lo: #07090c;
   --color-well: #0b0f15;
   --color-title-hi: #35503f;
-  --color-title-lo: #14211a;
-  --color-idle-hi: #414854;
   --color-idle-lo: #2c313a;
   --color-close-hi: #c2462f;
-  --color-close-lo: #8a2a1b;
   --color-accent: #a8e6bf;
   --color-text: #d8dde4;
   --color-muted: #8a93a0;
@@ -55,58 +52,36 @@ body,
 
 .window-shell {
   backface-visibility: hidden;
-  gap: 2px;
-  padding: 3px;
-  border-radius: 6px 6px 0 0;
+  border-radius: 4px 4px 0 0;
   background: var(--color-chrome);
   box-shadow:
-    inset 1px 1px 0 var(--color-chrome-hi),
-    inset -1px -1px 0 var(--color-chrome-lo),
     0 0 0 1px var(--color-chrome-lo),
     0 4px 12px rgb(0 0 0 / 0.45);
 }
 
 .window-header {
-  --title-hi: var(--color-idle-hi);
-  --title-lo: var(--color-idle-lo);
   min-height: clamp(1.625rem, 3.4cqi, 2rem);
-  border-radius: 3px 3px 0 0;
-  background:
-    linear-gradient(
-      to bottom,
-      rgb(255 255 255 / 0.3),
-      rgb(255 255 255 / 0.08) 45%,
-      transparent 45%
-    ),
-    linear-gradient(to bottom, var(--title-hi), var(--title-lo));
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25);
-  color: var(--color-text);
+  border-radius: 4px 4px 0 0;
+  background: var(--color-idle-lo);
+  color: var(--color-muted);
   font-size: clamp(0.6875rem, 1.35cqi, 0.75rem);
-  font-weight: 700;
-  text-shadow: 1px 1px 0 rgb(0 0 0 / 0.6);
 }
 
 .window-frame[data-focused='true'] .window-header {
-  --title-hi: var(--color-title-hi);
-  --title-lo: var(--color-title-lo);
+  background: var(--color-title-hi);
   color: var(--color-terminal-fg);
 }
 
 .window-body {
-  border: 1px solid;
-  border-color: var(--color-chrome-lo) var(--color-chrome-hi) var(--color-chrome-hi)
-    var(--color-chrome-lo);
+  border-top: 1px solid var(--color-chrome-lo);
 }
 
 .retro-button,
 .window-controls button,
 .taskbar button {
-  border: 1px solid var(--color-chrome-lo);
+  border: 1px solid transparent;
   border-radius: 2px;
-  background: linear-gradient(to bottom, var(--color-chrome-hi), var(--color-chrome));
-  box-shadow:
-    inset 1px 1px 0 rgb(255 255 255 / 0.3),
-    inset -1px -1px 0 rgb(0 0 0 / 0.4);
+  background: transparent;
   color: var(--color-text);
   font-size: 12px;
   cursor: pointer;
@@ -115,20 +90,13 @@ body,
 .retro-button {
   min-width: 4.5rem;
   padding: 3px 14px;
+  border-color: var(--color-chrome-hi);
 }
 
 .retro-button:hover:not(:disabled),
 .window-controls button:hover:not(:disabled),
 .taskbar button:hover {
-  filter: brightness(1.15);
-}
-
-.retro-button:active:not(:disabled),
-.window-controls button:active:not(:disabled) {
-  background: var(--color-chrome);
-  box-shadow:
-    inset 1px 1px 0 var(--color-chrome-lo),
-    inset -1px -1px 0 rgb(255 255 255 / 0.12);
+  background: rgb(255 255 255 / 0.1);
 }
 
 .retro-button:disabled,
@@ -149,16 +117,12 @@ body,
   height: clamp(0.875rem, 2.4cqi, 1.125rem);
   place-items: center;
   padding: 0;
+  color: inherit;
+}
+
+.window-controls .window-control-close:hover:not(:disabled) {
+  background: var(--color-close-hi);
   color: var(--color-terminal-fg);
-  text-shadow: none;
-}
-
-.window-controls .window-control-close {
-  background: linear-gradient(to bottom, var(--color-close-hi), var(--color-close-lo));
-}
-
-.window-controls .window-control-close:active:not(:disabled) {
-  background: var(--color-close-lo);
 }
 
 .window-controls svg {
@@ -180,15 +144,8 @@ body,
   gap: 4px;
   height: 32px;
   padding: 0 6px;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--color-chrome), white 14%),
-    var(--color-chrome) 45%,
-    color-mix(in srgb, var(--color-chrome), black 25%)
-  );
-  box-shadow:
-    inset 0 1px 0 var(--color-chrome-hi),
-    inset 0 -1px 0 var(--color-chrome-lo);
+  background: var(--color-chrome);
+  box-shadow: inset 0 -1px 0 var(--color-chrome-lo);
 }
 
 .taskbar button {
@@ -200,26 +157,22 @@ body,
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: left;
-}
-
-.taskbar button[data-minimized='true'] {
   color: var(--color-muted);
 }
 
+.taskbar button[data-minimized='true'] {
+  opacity: 0.6;
+}
+
 .taskbar button[aria-selected='true'] {
-  background: var(--color-well);
-  box-shadow:
-    inset 1px 1px 0 var(--color-chrome-lo),
-    inset 0 -2px 0 var(--color-accent);
+  background: rgb(255 255 255 / 0.08);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
   color: var(--color-terminal-fg);
 }
 
 .taskbar-tray {
   margin-left: auto;
   padding: 0 10px;
-  box-shadow:
-    inset 1px 1px 0 var(--color-chrome-lo),
-    inset -1px -1px 0 var(--color-chrome-hi);
   color: var(--color-text);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
