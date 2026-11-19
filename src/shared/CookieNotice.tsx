@@ -5,24 +5,35 @@ export function CookieNotice() {
   if (cookies !== 'unknown') return null
 
   return (
-    <div className="fixed right-3 bottom-3 z-[1000] flex w-1/5 flex-col gap-3 border border-white/28 bg-black px-3 py-3 font-mono text-[12px] tracking-[0.08em] text-white/80">
-      <p className="m-0">save settings in a cookie so they stay next visit.</p>
-      <div className="flex gap-2">
-        <button
-          type="button"
-          className="cursor-pointer border border-white/28 bg-transparent px-2 py-1 text-white/70"
-          onClick={() => useSettings.getState().rejectCookies()}
-        >
-          reject
-        </button>
-        <button
-          type="button"
-          className="cursor-pointer border border-white/72 bg-transparent px-2 py-1 text-white"
-          onClick={() => useSettings.getState().acceptCookies()}
-        >
-          accept
-        </button>
+    <section
+      aria-label="cookies"
+      data-focused="true"
+      className="window-frame fixed right-3 bottom-3 z-[1000] w-1/5 min-w-60 text-[12px]"
+    >
+      <div className="window-shell flex flex-col">
+        <header className="window-header flex items-center py-1.5">
+          <span className="min-w-0 flex-1 truncate px-4">cookies</span>
+        </header>
+        <div className="window-body flex flex-col gap-4 bg-terminal-bg p-4 text-text">
+          <p className="m-0">save settings in a cookie so they stay next visit.</p>
+          <div className="flex justify-end gap-3">
+            <button
+              type="button"
+              className="retro-button"
+              onClick={() => useSettings.getState().rejectCookies()}
+            >
+              reject
+            </button>
+            <button
+              type="button"
+              className="retro-button"
+              onClick={() => useSettings.getState().acceptCookies()}
+            >
+              accept
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   )
 }

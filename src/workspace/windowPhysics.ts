@@ -4,6 +4,7 @@ import {
   type Simulation,
   type SimulationNodeDatum,
 } from 'd3-force'
+import { useSettings } from '../shared/settings'
 import type { WindowFrame, WindowId } from './useCanvasStore'
 import { clampCenter } from './world'
 
@@ -118,6 +119,7 @@ export class WindowPhysics {
     this.onTick = onTick
     if (this.sim) return
 
+    const separating = () => this.dragId != null && !useSettings.getState().overlap
     this.sim = forceSimulation<WindowNode>([])
       .velocityDecay(PHYSICS.velocityDecay)
       .force(
@@ -125,12 +127,12 @@ export class WindowPhysics {
         forceSeparate(
           PHYSICS.padding + PHYSICS.magnetRange,
           PHYSICS.magnetSoftness,
-          () => this.dragId != null,
+          separating,
         ),
       )
       .force(
         'collide',
-        forceSeparate(PHYSICS.padding, 1, () => this.dragId != null),
+        forceSeparate(PHYSICS.padding, 1, separating),
       )
       .on('tick', () => {
         this.applyOverviewDrift()
@@ -278,7 +280,7 @@ export class WindowPhysics {
       node.vy = 0
     }
 
-    this.separateOverlaps()
+    if (!useSettings.getState().overlap) this.separateOverlaps()
     this.clampNodes()
   }
 

@@ -122,7 +122,7 @@ export function AboutPage() {
         </div>
       </aside>
       <section className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div role="tablist" aria-label="about" className="flex shrink-0 border-b border-white/16">
+        <div role="tablist" aria-label="about" className="flex shrink-0 gap-6 border-b border-white/25 px-4">
           {TABS.map((id) => {
             const selected = tab === id
             return (
@@ -134,8 +134,8 @@ export function AboutPage() {
                 aria-controls={`about-panel-${id}`}
                 aria-selected={selected}
                 onClick={() => setAboutTab(id)}
-                className={`cursor-pointer border-r border-white/16 px-3 py-2 tracking-[0.14em] ${
-                  selected ? 'text-white' : 'text-white/40'
+                className={`-mb-px cursor-pointer border-b-2 py-2 text-xs ${
+                  selected ? 'border-white text-white' : 'border-transparent text-white/60 hover:text-white'
                 }`}
               >
                 {id}
@@ -169,6 +169,7 @@ const BRANCH_COLOR: Record<string, string> = {
   'cit cat coe': '#b8bb26',
   meowNY: '#b16286',
   purrtfolio: '#fb4934',
+  'smart avatar internship': '#d79921',
 }
 
 function HistoryLine({ row, headRef }: { row: HistoryRow; headRef?: Ref<HTMLSpanElement> }) {
@@ -423,20 +424,38 @@ function Qa({ q, first = false, children }: { q: string; first?: boolean; childr
 
 function SettingsPanel() {
   const calm = useSettings((state) => state.calm)
+  const flashlight = useSettings((state) => state.flashlight)
+  const overlap = useSettings((state) => state.overlap)
   const trail = useSettings((state) => state.trail)
   const trailOverWindows = useSettings((state) => state.trailOverWindows)
   const trailLength = useSettings((state) => state.trailLength)
   const trailDelay = useSettings((state) => state.trailDelay)
 
   return (
-    <div className="scrollbar-line flex h-full flex-col gap-8 overflow-auto p-4">
+    <div className="scrollbar-line flex h-full flex-col gap-8 overflow-auto p-4 text-xs">
       <div className="flex flex-col gap-2">
         <Toggle
           label="remove animations"
           checked={calm}
           onChange={(value) => useSettings.getState().setCalm(value)}
         />
-        <p className="m-0 text-white/45">hides the grid and background drag</p>
+        <p className="m-0 text-muted">hides the background image, flashlight and background drag</p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Toggle
+          label="flashlight"
+          checked={flashlight}
+          onChange={(value) => useSettings.getState().setFlashlight(value)}
+        />
+        <p className="m-0 text-muted">lights up the background around open windows</p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <Toggle
+          label="let windows overlap"
+          checked={overlap}
+          onChange={(value) => useSettings.getState().setOverlap(value)}
+        />
+        <p className="m-0 text-muted">windows stop pushing each other apart while you drag</p>
       </div>
       <div className="flex flex-col gap-3">
         <Toggle
@@ -529,7 +548,7 @@ function Slider({
         onChange={(event) => onChange(Number(event.target.value))}
         className="retro-range"
       />
-      <span className="text-right text-white/45">{value}</span>
+      <span className="text-right text-muted">{value}</span>
     </label>
   )
 }

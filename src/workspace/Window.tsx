@@ -27,7 +27,6 @@ function WindowControls({
   onMinimize,
   onMaximize,
   onClose,
-  className = '',
 }: {
   title: string
   canMinimize: boolean
@@ -36,11 +35,10 @@ function WindowControls({
   onMinimize: () => void
   onMaximize: () => void
   onClose: () => void
-  className?: string
 }) {
   return (
     <div
-      className={`window-controls ${className}`}
+      className="window-controls"
       onPointerDown={(event) => event.stopPropagation()}
     >
       <button
@@ -219,41 +217,28 @@ export const Window = memo(function Window({ id, children }: WindowProps) {
         overview && !maximized ? 'cursor-grab' : ''
       } ${dragging ? 'cursor-grabbing' : ''}`}
     >
-      <div
-        className={`window-shell flex h-full flex-col ${
-          paper ? 'window-shell-paper' : 'bg-terminal-bg'
-        }`}
-      >
+      <div className="window-shell flex h-full flex-col">
         <header
-          className={`window-header shrink-0 touch-none select-none ${
+          className={`window-header flex shrink-0 touch-none select-none items-center py-1.5 ${
             maximized ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'
-          } ${
-            paper
-              ? 'window-header-paper grid grid-cols-[1fr_auto_1fr] items-center py-1 font-mono leading-none'
-              : 'flex items-center py-1.5'
           }`}
           onPointerDown={handleHeaderDown}
         >
-          <span
-            className={`min-w-0 truncate ${
-              paper ? 'col-start-2 px-2 text-center' : 'flex-1 px-4'
-            }`}
-          >
-            {frame.title}
-          </span>
+          <span className="min-w-0 flex-1 truncate px-4">{frame.title}</span>
           <WindowControls
             title={frame.title}
             canMinimize={closable}
             canClose={closable}
             maximized={maximized}
-            className={paper ? 'col-start-3' : ''}
             onMinimize={() => useCanvasStore.getState().minimize(id)}
             onMaximize={() => useCanvasStore.getState().maximize(id)}
             onClose={() => useCanvasStore.getState().close(id)}
           />
         </header>
         <div
-          className={`min-h-0 flex-1 ${focused ? '' : 'opacity-75'} ${
+          className={`window-body min-h-0 flex-1 ${
+            paper ? 'bg-paper' : 'bg-terminal-bg'
+          } ${focused ? '' : 'opacity-75'} ${
             overview ? 'pointer-events-none' : ''
           }`}
         >
