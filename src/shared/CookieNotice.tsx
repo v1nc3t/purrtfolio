@@ -8,7 +8,7 @@ export function CookieNotice() {
     <section
       aria-label="cookies"
       data-focused="true"
-      className="window-frame fixed right-3 bottom-3 z-[1000] w-1/5 min-w-60 font-ui text-[12px]"
+      className="window-frame fixed right-3 bottom-3 z-[1000] w-1/5 min-w-60 text-[12px]"
     >
       <div className="window-shell flex flex-col">
         <header className="window-header flex items-center py-1.5">

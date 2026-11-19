@@ -23,7 +23,6 @@
   --color-paper: #e7decc;
   --color-ink: #1c1712;
   --color-rule: #1c171247;
-  --font-ui: Tahoma, Verdana, 'Segoe UI', 'DejaVu Sans', sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas,
     monospace;
   --animate-cursor-blink: cursor-blink 1s step-end infinite;
@@ -82,7 +81,6 @@ body,
     linear-gradient(to bottom, var(--title-hi), var(--title-lo));
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.25);
   color: var(--color-text);
-  font-family: var(--font-ui);
   font-size: clamp(0.6875rem, 1.35cqi, 0.75rem);
   font-weight: 700;
   text-shadow: 1px 1px 0 rgb(0 0 0 / 0.6);
@@ -110,7 +108,6 @@ body,
     inset 1px 1px 0 rgb(255 255 255 / 0.3),
     inset -1px -1px 0 rgb(0 0 0 / 0.4);
   color: var(--color-text);
-  font-family: var(--font-ui);
   font-size: 12px;
   cursor: pointer;
 }
@@ -224,7 +221,6 @@ body,
     inset 1px 1px 0 var(--color-chrome-lo),
     inset -1px -1px 0 var(--color-chrome-hi);
   color: var(--color-text);
-  font-family: var(--font-ui);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
   line-height: 22px;
@@ -264,12 +260,7 @@ body,
 .projects-page {
   background: var(--color-paper);
   color: var(--color-ink);
-  font-family: Georgia, 'Iowan Old Style', Palatino, 'Palatino Linotype', serif;
   font-size: clamp(0.6875rem, 1.15cqi, 0.875rem);
-}
-
-.projects-page pre {
-  font-family: var(--font-mono);
 }
 
 .paper-nameplate {

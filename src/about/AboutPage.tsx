@@ -134,7 +134,7 @@ export function AboutPage() {
                 aria-controls={`about-panel-${id}`}
                 aria-selected={selected}
                 onClick={() => setAboutTab(id)}
-                className={`-mb-px cursor-pointer border-b-2 py-2 font-ui text-xs ${
+                className={`-mb-px cursor-pointer border-b-2 py-2 text-xs ${
                   selected ? 'border-white text-white' : 'border-transparent text-white/60 hover:text-white'
                 }`}
               >
@@ -432,7 +432,7 @@ function SettingsPanel() {
   const trailDelay = useSettings((state) => state.trailDelay)
 
   return (
-    <div className="scrollbar-line flex h-full flex-col gap-8 overflow-auto p-4 font-ui text-xs">
+    <div className="scrollbar-line flex h-full flex-col gap-8 overflow-auto p-4 text-xs">
       <div className="flex flex-col gap-2">
         <Toggle
           label="remove animations"
